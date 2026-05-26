@@ -486,23 +486,53 @@ const USERS = [
   {email:'admin@casaliva.com.br', password:'admin123', name:'Admin'},
   {email:'gonzalo@casaliva.com.br', password:'gonzalo123', name:'Gonzalo'},
   {email:'betania@casaliva.com.br', password:'betania123', name:'Betânia'},
-  {email:'diego@casaliva.com.br', password:'diego123', name:'Diego'}
+  {email:'diego@casaliva.com.br', password:'diego123', name:'Diego'},
+  {email:'flavia@casaliva.com.br', password:'flavia123', name:'Flávia'},
+  {email:'leonardo@casaliva.com.br', password:'leonardo123', name:'Leonardo'},
+  {email:'gilvan@casaliva.com.br', password:'gilvan123', name:'Gilvan'},
+  {email:'cesar@casaliva.com.br', password:'cesar123', name:'César'},
+  {email:'micheli@casaliva.com.br', password:'micheli123', name:'Micheli'},
+  {email:'tiago@casaliva.com.br', password:'tiago123', name:'Tiago Losch'},
 ];
 
 function doLogin() {
-  const email = document.getElementById('login-email').value.trim().toLowerCase();
-  const pass = document.getElementById('login-password').value;
-  const user = USERS.find(u => u.email === email && u.password === pass);
+  const emailEl = document.getElementById('login-email');
+  const passEl = document.getElementById('login-password');
+  const errEl = document.getElementById('login-error');
+  if (!emailEl || !passEl) return;
+
+  const email = emailEl.value.trim().toLowerCase();
+  const pass = passEl.value.trim();
+
+  // Aceita e-mail completo OU só o nome (ex: "gonzalo")
+  const user = USERS.find(u =>
+    u.email === email ||
+    u.email.split('@')[0] === email ||
+    u.name.toLowerCase() === email
+  ) && USERS.find(u => {
+    const matchEmail = u.email === email ||
+      u.email.split('@')[0] === email ||
+      u.name.toLowerCase() === email;
+    return matchEmail && u.password === pass;
+  });
+
   if (user) {
+    if (errEl) errEl.style.display = 'none';
     sessionStorage.setItem('cl_user', JSON.stringify(user));
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     initDashboard();
   } else {
-    document.getElementById('login-error').style.display = 'block';
+    if (errEl) errEl.style.display = 'block';
   }
 }
-document.getElementById('login-password').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const passEl = document.getElementById('login-password');
+  if (passEl) passEl.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+  const emailEl = document.getElementById('login-email');
+  if (emailEl) emailEl.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+});
 
 function doLogout() {
   sessionStorage.removeItem('cl_user');
