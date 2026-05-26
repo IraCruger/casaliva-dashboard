@@ -242,7 +242,7 @@ h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif}
       <label>Senha</label>
       <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
     </div>
-    <button class="btn-login" onclick="doLogin()">Entrar no Dashboard</button>
+    <button class="btn-login" id="btn-entrar" type="button">Entrar no Dashboard</button>
     <div class="login-error" id="login-error">E-mail ou senha incorretos.</div>
   </div>
 </div>
@@ -512,43 +512,59 @@ const USERS = [
   {email:'tiago@casaliva.com.br', password:'tiago123', name:'Tiago Losch'},
 ];
 
-function doLogin() {
-  var inputEl = document.getElementById('login-email');
-  var passEl  = document.getElementById('login-password');
-  var errEl   = document.getElementById('login-error');
+// ===== LOGIN CASA LIVA =====
+var LOGINS = {
+  'iran':     'casaliva2026',
+  'admin':    'admin123',
+  'gonzalo':  'gonzalo123',
+  'betania':  'betania123',
+  'diego':    'diego123',
+  'flavia':   'flavia123',
+  'leonardo': 'leonardo123',
+  'gilvan':   'gilvan123',
+  'cesar':    'cesar123',
+  'michele':  'michele123',
+  'tiago':    'tiago123'
+};
 
-  var input = (inputEl.value || '').trim().toLowerCase();
-  var pass  = (passEl.value  || '').trim();
+var NOMES = {
+  'iran': 'Iran', 'admin': 'Admin', 'gonzalo': 'Gonzalo',
+  'betania': 'Betânia', 'diego': 'Diego', 'flavia': 'Flávia',
+  'leonardo': 'Leonardo', 'gilvan': 'Gilvan', 'cesar': 'César',
+  'michele': 'Michele', 'tiago': 'Tiago Losch'
+};
 
-  if (input.charAt(0) === '@') input = input.substring(1);
-  var atPos = input.indexOf('@');
-  if (atPos > -1) input = input.substring(0, atPos);
-  input = input.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+function fazerLogin() {
+  var campo = document.getElementById('login-email').value;
+  var senha  = document.getElementById('login-password').value;
+  var erro   = document.getElementById('login-error');
 
-  var found = null;
-  for (var i = 0; i < USERS.length; i++) {
-    var u = USERS[i];
-    var uPrefix = u.email.split('@')[0].toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    var uFirst = u.name.split(' ')[0].toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    if ((uPrefix === input || uFirst === input) && u.password === pass) {
-      found = u;
-      break;
-    }
-  }
+  // Limpar e normalizar o campo usuário
+  campo = campo.trim().toLowerCase();
+  // Remover @ do início
+  if (campo[0] === '@') campo = campo.slice(1);
+  // Se digitou email completo (ex: gonzalo@casaliva.com.br), pegar só a parte antes do @
+  if (campo.indexOf('@') !== -1) campo = campo.split('@')[0];
+  // Remover acentos
+  campo = campo.normalize('NFD').replace(/[̀-ͯ]/g, '');
 
-  if (found) {
-    if (errEl) errEl.style.display = 'none';
-    try { sessionStorage.setItem('cl_user', JSON.stringify(found)); } catch(e) {}
+  // Verificar se existe e senha bate
+  if (LOGINS[campo] && LOGINS[campo] === senha) {
+    var usuario = { name: NOMES[campo], login: campo };
+    erro.style.display = 'none';
+    try { sessionStorage.setItem('cl_user', JSON.stringify(usuario)); } catch(e) {}
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     initDashboard();
   } else {
-    if (errEl) errEl.style.display = 'block';
+    erro.style.display = 'block';
   }
 }
+
+function doLogin() { fazerLogin(); }
 document.addEventListener('DOMContentLoaded', () => {
+  var btnEntrar = document.getElementById('btn-entrar');
+  if (btnEntrar) btnEntrar.addEventListener('click', fazerLogin);
   const passEl = document.getElementById('login-password');
   if (passEl) passEl.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
   const emailEl = document.getElementById('login-email');
