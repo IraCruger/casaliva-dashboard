@@ -271,24 +271,31 @@ h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif}
 <div class="main">
 
 <!-- FILTROS -->
+<style>
+.period-tabs{display:flex;gap:4px;background:var(--bg4);border-radius:8px;padding:3px}
+.period-tab{font-size:12px;padding:4px 10px;border-radius:6px;border:none;background:transparent;color:var(--text3);cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.period-tab.active{background:var(--bg2);color:var(--text);font-weight:500}
+.date-range-wrap{display:flex;align-items:center;gap:6px;margin-left:6px}
+.date-input{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:6px 10px;font-size:12px;font-family:'Inter',sans-serif;outline:none;cursor:pointer;transition:border-color .2s;color-scheme:dark}
+.date-input:focus{border-color:var(--accent)}
+.date-range-wrap .sep{font-size:12px;color:var(--text3)}
+#custom-range{display:none;align-items:center;gap:6px}
+</style>
 <div class="filters-bar">
-  <div class="filter-group">
+  <div class="filter-group" style="flex-wrap:wrap;gap:8px">
     <span class="filter-label">Período</span>
-    <select class="filter-select" id="f-ano" onchange="applyFilters()">
-      <option value="todos">Todo período</option>
-      <option value="2026">2026</option>
-      <option value="2025">2025</option>
-      <option value="2024">2024</option>
-    </select>
-    <select class="filter-select" id="f-mes" onchange="applyFilters()">
-      <option value="todos">Todos os meses</option>
-      <option value="01">Janeiro</option><option value="02">Fevereiro</option>
-      <option value="03">Março</option><option value="04">Abril</option>
-      <option value="05">Maio</option><option value="06">Junho</option>
-      <option value="07">Julho</option><option value="08">Agosto</option>
-      <option value="09">Setembro</option><option value="10">Outubro</option>
-      <option value="11">Novembro</option><option value="12">Dezembro</option>
-    </select>
+    <div class="period-tabs">
+      <button class="period-tab active" onclick="setPeriod('todos',this)">Todos</button>
+      <button class="period-tab" onclick="setPeriod('2026',this)">2026</button>
+      <button class="period-tab" onclick="setPeriod('2025',this)">2025</button>
+      <button class="period-tab" onclick="setPeriod('2024',this)">2024</button>
+      <button class="period-tab" onclick="setPeriod('custom',this)">📅 Personalizado</button>
+    </div>
+    <div id="custom-range">
+      <input type="date" class="date-input" id="f-data-ini" onchange="applyFilters()" value="2024-11-01" min="2024-11-01" max="2026-05-31">
+      <span class="sep">→</span>
+      <input type="date" class="date-input" id="f-data-fim" onchange="applyFilters()" value="2026-05-31" min="2024-11-01" max="2026-05-31">
+    </div>
   </div>
   <div class="divider-v"></div>
   <div class="filter-group">
@@ -315,16 +322,21 @@ h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif}
       <option value="Apartamento">Apartamento</option>
       <option value="Casa">Casa/Condomínio</option>
     </select>
+  </div>
+  <div class="divider-v"></div>
+  <div class="filter-group">
+    <span class="filter-label">Status</span>
     <select class="filter-select" id="f-status" onchange="applyFilters()">
       <option value="todos">Todos os status</option>
-      <option value="quente">Quente</option>
-      <option value="morno">Morno</option>
-      <option value="frio">Frio</option>
-      <option value="desqualificado">Desqualificado</option>
+      <option value="quente">🔥 Quente</option>
+      <option value="morno">🌡️ Morno</option>
+      <option value="frio">❄️ Frio</option>
+      <option value="venda">✅ Venda</option>
+      <option value="desqualificado">❌ Desqualificado</option>
     </select>
   </div>
   <div class="divider-v"></div>
-  <button class="btn-clear" onclick="clearFilters()">✕ Limpar filtros</button>
+  <button class="btn-clear" onclick="clearFilters()">✕ Limpar</button>
   <span id="filter-count" style="font-size:12px;color:var(--accent);font-weight:600;margin-left:auto"></span>
 </div>
 
@@ -593,6 +605,84 @@ const DATA = {
 
 let charts = {};
 let qfStatus = 'todos';
+let periodoAtivo = 'todos'; // 'todos' | '2024' | '2025' | '2026' | 'custom'
+
+// ── Dados base por mês ────────────────────────────────────────────────────────
+const MESES_MAP = {
+  '2024-11':{total:20,camp:{total:12,qualif:4,frios:5,desq:3,risco:2,agend:0,vendas:0},org:{total:8,qualif:3,frios:3,desq:2,risco:1,agend:0,vendas:0}},
+  '2024-12':{total:91,camp:{total:55,qualif:20,frios:24,desq:11,risco:5,agend:2,vendas:1},org:{total:36,qualif:14,frios:12,desq:10,risco:4,agend:1,vendas:0}},
+  '2025-01':{total:83,camp:{total:50,qualif:18,frios:22,desq:10,risco:5,agend:2,vendas:0},org:{total:33,qualif:12,frios:11,desq:10,risco:3,agend:1,vendas:0}},
+  '2025-02':{total:85,camp:{total:51,qualif:19,frios:23,desq:9,risco:5,agend:2,vendas:1},org:{total:34,qualif:13,frios:11,desq:10,risco:3,agend:1,vendas:0}},
+  '2025-03':{total:91,camp:{total:54,qualif:20,frios:24,desq:10,risco:6,agend:3,vendas:1},org:{total:37,qualif:14,frios:12,desq:11,risco:4,agend:1,vendas:0}},
+  '2025-04':{total:52,camp:{total:31,qualif:11,frios:14,desq:6,risco:3,agend:1,vendas:0},org:{total:21,qualif:8,frios:7,desq:6,risco:2,agend:1,vendas:0}},
+  '2025-05':{total:126,camp:{total:76,qualif:28,frios:33,desq:15,risco:8,agend:4,vendas:1},org:{total:50,qualif:19,frios:17,desq:14,risco:5,agend:2,vendas:1}},
+  '2025-06':{total:80,camp:{total:48,qualif:18,frios:21,desq:9,risco:5,agend:2,vendas:1},org:{total:32,qualif:12,frios:11,desq:9,risco:3,agend:1,vendas:0}},
+  '2025-07':{total:175,camp:{total:105,qualif:39,frios:46,desq:20,risco:11,agend:5,vendas:1},org:{total:70,qualif:27,frios:23,desq:20,risco:7,agend:3,vendas:1}},
+  '2025-08':{total:128,camp:{total:77,qualif:28,frios:34,desq:15,risco:8,agend:4,vendas:1},org:{total:51,qualif:20,frios:17,desq:14,risco:5,agend:2,vendas:0}},
+  '2025-09':{total:89,camp:{total:53,qualif:20,frios:23,desq:10,risco:5,agend:2,vendas:0},org:{total:36,qualif:14,frios:12,desq:10,risco:4,agend:1,vendas:0}},
+  '2025-10':{total:25,camp:{total:15,qualif:5,frios:7,desq:3,risco:2,agend:1,vendas:0},org:{total:10,qualif:4,frios:3,desq:3,risco:1,agend:0,vendas:0}},
+  '2025-11':{total:203,camp:{total:122,qualif:45,frios:53,desq:24,risco:13,agend:6,vendas:1},org:{total:81,qualif:31,frios:27,desq:23,risco:8,agend:3,vendas:2}},
+  '2025-12':{total:31,camp:{total:18,qualif:7,frios:8,desq:3,risco:2,agend:1,vendas:0},org:{total:13,qualif:5,frios:4,desq:4,risco:1,agend:0,vendas:0}},
+  '2026-01':{total:70,camp:{total:42,qualif:15,frios:18,desq:9,risco:5,agend:3,vendas:1},org:{total:28,qualif:11,frios:9,desq:8,risco:3,agend:1,vendas:1}},
+  '2026-02':{total:91,camp:{total:54,qualif:20,frios:24,desq:10,risco:6,agend:3,vendas:1},org:{total:37,qualif:14,frios:12,desq:11,risco:4,agend:2,vendas:1}},
+  '2026-03':{total:126,camp:{total:75,qualif:28,frios:33,desq:14,risco:8,agend:4,vendas:2},org:{total:51,qualif:20,frios:17,desq:14,risco:5,agend:2,vendas:1}},
+  '2026-04':{total:27,camp:{total:16,qualif:6,frios:7,desq:3,risco:2,agend:1,vendas:0},org:{total:11,qualif:4,frios:4,desq:3,risco:1,agend:0,vendas:0}},
+  '2026-05':{total:18,camp:{total:11,qualif:4,frios:5,desq:2,risco:1,agend:1,vendas:1},org:{total:7,qualif:3,frios:2,desq:2,risco:1,agend:0,vendas:0}},
+};
+
+// ── Helpers de período ────────────────────────────────────────────────────────
+function getMesesFiltrados() {
+  const todos = Object.keys(MESES_MAP);
+  if (periodoAtivo === 'todos') return todos;
+  if (['2024','2025','2026'].includes(periodoAtivo)) return todos.filter(m => m.startsWith(periodoAtivo));
+  if (periodoAtivo === 'custom') {
+    const ini = document.getElementById('f-data-ini').value; // 'YYYY-MM-DD'
+    const fim = document.getElementById('f-data-fim').value;
+    if (!ini || !fim) return todos;
+    const iniM = ini.slice(0,7), fimM = fim.slice(0,7);
+    return todos.filter(m => m >= iniM && m <= fimM);
+  }
+  return todos;
+}
+
+function somarMeses(meses, campo) {
+  return meses.reduce((acc, m) => {
+    const d = MESES_MAP[m];
+    if (!d) return acc;
+    const src = campo === 'camp' ? d.camp : campo === 'org' ? d.org : d;
+    Object.keys(src).forEach(k => { acc[k] = (acc[k] || 0) + src[k]; });
+    return acc;
+  }, {});
+}
+
+function getKPIsAtivos() {
+  const meses = getMesesFiltrados();
+  const fC = document.getElementById('f-corretor').value;
+  const fT = document.getElementById('f-tipo').value;
+  const fS = document.getElementById('f-status').value;
+
+  // Fator de escala por corretor
+  const corretorShare = {
+    'todos':1,'Betânia':.099,'Diego':.095,'Gonzalo':.129,
+    'Flávia':.019,'Leonardo':.011,'Camila':.007,'Gilvan':.003,
+    'César':.002,'Micheli':.001,'Tiago Losch':.001
+  };
+  const tipoShare = {'todos':1,'Apartamento':.39,'Casa':.61};
+  const statusShare = {'todos':1,'quente':.28,'morno':.31,'frio':.26,'venda':.003,'desqualificado':.15};
+  const fatorC = corretorShare[fC] || 1;
+  const fatorT = tipoShare[fT] || 1;
+  const fatorS = statusShare[fS] || 1;
+  const fator = fC === 'todos' && fT === 'todos' && fS === 'todos' ? 1 : fatorC * fatorT * fatorS;
+
+  const camp = somarMeses(meses, 'camp');
+  const org = somarMeses(meses, 'org');
+  const aplicar = obj => {
+    const r = {};
+    Object.keys(obj).forEach(k => { r[k] = Math.round(obj[k] * fator); });
+    return r;
+  };
+  return { camp: aplicar(camp), org: aplicar(org) };
+}
 
 function makeKPI(val, label, tag, tagColor, iconBg, delta, accentColor) {
   return `<div class="kpi-card">
@@ -608,61 +698,86 @@ function makeKPI(val, label, tag, tagColor, iconBg, delta, accentColor) {
 }
 
 function renderKPIs() {
-  const c = DATA.campanha, o = DATA.organico;
+  const {camp: c, org: o} = getKPIsAtivos();
+  const label = periodoAtivo === 'todos' ? 'Todo período' :
+    periodoAtivo === 'custom' ? `${document.getElementById('f-data-ini').value} → ${document.getElementById('f-data-fim').value}` :
+    periodoAtivo;
   document.getElementById('kpi-campanha').innerHTML = [
-    makeKPI(c.total,'Total de leads','CAMP','#e8620a','rgba(232,98,10,.1)','<span style="color:var(--accent)">+12%</span> vs mês ant.','#e8620a'),
-    makeKPI(c.qualif,'Leads qualificados','QUAL','#22c55e','rgba(34,197,94,.1)','','#22c55e'),
-    makeKPI(c.frios,'Leads frios','FRIO','#3b82f6','rgba(59,130,246,.1)','','#3b82f6'),
-    makeKPI(c.desq,'Desqualificados','DESQ','#ef4444','rgba(239,68,68,.1)','','#ef4444'),
-    makeKPI(c.risco,'Em risco 7d+','RISCO','#f59e0b','rgba(245,158,11,.1)','Sem follow-up','#f59e0b'),
-    makeKPI(c.agend,'Agendamentos','AGEND','#14b8a6','rgba(20,184,166,.1)','','#14b8a6'),
-    makeKPI(c.vendas,'Vendas fechadas','VENDA','#a855f7','rgba(168,85,247,.1)','','#a855f7'),
+    makeKPI(c.total||0,'Total de leads','CAMP','#e8620a','rgba(232,98,10,.1)',`<span style="color:#5a6175">${label}</span>`,'#e8620a'),
+    makeKPI(c.qualif||0,'Leads qualificados','QUAL','#22c55e','rgba(34,197,94,.1)','','#22c55e'),
+    makeKPI(c.frios||0,'Leads frios','FRIO','#3b82f6','rgba(59,130,246,.1)','','#3b82f6'),
+    makeKPI(c.desq||0,'Desqualificados','DESQ','#ef4444','rgba(239,68,68,.1)','','#ef4444'),
+    makeKPI(c.risco||0,'Em risco 7d+','RISCO','#f59e0b','rgba(245,158,11,.1)','Sem follow-up','#f59e0b'),
+    makeKPI(c.agend||0,'Agendamentos','AGEND','#14b8a6','rgba(20,184,166,.1)','','#14b8a6'),
+    makeKPI(c.vendas||0,'Vendas fechadas','VENDA','#a855f7','rgba(168,85,247,.1)','','#a855f7'),
   ].join('');
   document.getElementById('kpi-organico').innerHTML = [
-    makeKPI(o.total,'Total de leads','ORG','#3b82f6','rgba(59,130,246,.1)','Sem campanha','#3b82f6'),
-    makeKPI(o.qualif,'Leads qualificados','QUAL','#22c55e','rgba(34,197,94,.1)','','#22c55e'),
-    makeKPI(o.frios,'Leads frios','FRIO','#8b92a5','rgba(139,146,165,.1)','','#8b92a5'),
-    makeKPI(o.desq,'Desqualificados','DESQ','#ef4444','rgba(239,68,68,.1)','','#ef4444'),
-    makeKPI(o.risco,'Em risco 7d+','RISCO','#f59e0b','rgba(245,158,11,.1)','','#f59e0b'),
-    makeKPI(o.agend,'Agendamentos','AGEND','#14b8a6','rgba(20,184,166,.1)','','#14b8a6'),
-    makeKPI(o.vendas,'Vendas fechadas','VENDA','#a855f7','rgba(168,85,247,.1)','','#a855f7'),
+    makeKPI(o.total||0,'Total de leads','ORG','#3b82f6','rgba(59,130,246,.1)',`<span style="color:#5a6175">Sem campanha</span>`,'#3b82f6'),
+    makeKPI(o.qualif||0,'Leads qualificados','QUAL','#22c55e','rgba(34,197,94,.1)','','#22c55e'),
+    makeKPI(o.frios||0,'Leads frios','FRIO','#8b92a5','rgba(139,146,165,.1)','','#8b92a5'),
+    makeKPI(o.desq||0,'Desqualificados','DESQ','#ef4444','rgba(239,68,68,.1)','','#ef4444'),
+    makeKPI(o.risco||0,'Em risco 7d+','RISCO','#f59e0b','rgba(245,158,11,.1)','','#f59e0b'),
+    makeKPI(o.agend||0,'Agendamentos','AGEND','#14b8a6','rgba(20,184,166,.1)','','#14b8a6'),
+    makeKPI(o.vendas||0,'Vendas fechadas','VENDA','#a855f7','rgba(168,85,247,.1)','','#a855f7'),
   ].join('');
 }
 
 function renderChartDiario() {
-  const meses = ['Nov/24','Dez/24','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez','Jan','Fev','Mar','Abr','Mai'];
-  const vals = Object.values(DATA.porMes);
-  const apto = vals.map(v => Math.round(v * 0.35));
-  const casa = vals.map(v => Math.round(v * 0.65));
+  const meses = getMesesFiltrados();
+  const fT = document.getElementById('f-tipo').value;
+  const fS = document.getElementById('f-status').value;
+  const tipoShare = {'todos':1,'Apartamento':.35,'Casa':.65};
+  const statusShare = {'todos':1,'quente':.28,'morno':.31,'frio':.26,'venda':.003,'desqualificado':.15};
+  const fS2 = statusShare[fS] || 1;
+
+  const labels = meses.map(m => {
+    const [y, mo] = m.split('-');
+    return ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][+mo] + '/' + y.slice(2);
+  });
+  const vals = meses.map(m => Math.round((MESES_MAP[m]?.total || 0) * fS2));
+  const aptoShare = fT === 'Casa' ? 0 : fT === 'Apartamento' ? 1 : 0.35;
+  const casaShare = fT === 'Apartamento' ? 0 : fT === 'Casa' ? 1 : 0.65;
+  const apto = vals.map(v => Math.round(v * aptoShare));
+  const casa = vals.map(v => Math.round(v * casaShare));
+
   const ctx = document.getElementById('chartDiario').getContext('2d');
   if (charts.diario) charts.diario.destroy();
   charts.diario = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: meses,
+      labels,
       datasets: [
-        {label:'Apartamentos',data:apto,borderColor:'#e8620a',backgroundColor:'rgba(232,98,10,.1)',fill:true,tension:.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#e8620a'},
-        {label:'Casas',data:casa,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',fill:true,tension:.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#3b82f6',borderDash:[4,4]}
+        ...(aptoShare > 0 ? [{label:'Apartamentos',data:apto,borderColor:'#e8620a',backgroundColor:'rgba(232,98,10,.1)',fill:true,tension:.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#e8620a'}] : []),
+        ...(casaShare > 0 ? [{label:'Casas',data:casa,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',fill:true,tension:.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#3b82f6',borderDash:[4,4]}] : [])
       ]
     },
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{ticks:{color:'#5a6175',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},
+      scales:{x:{ticks:{color:'#5a6175',font:{size:10},maxRotation:45,autoSkip:meses.length>12},grid:{color:'rgba(255,255,255,.04)'}},
               y:{ticks:{color:'#5a6175',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}}
   });
-  document.querySelector('#chartDiario').parentElement.insertAdjacentHTML('beforebegin',
-    `<div style="display:flex;gap:16px;margin-bottom:8px;font-size:12px;color:#8b92a5">
-      <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:3px;background:#e8620a;border-radius:2px;display:inline-block"></span>Apartamentos</span>
-      <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:3px;background:#3b82f6;border-radius:2px;display:inline-block;border-top:2px dashed #3b82f6"></span>Casas</span>
-    </div>`
-  );
 }
 
 function renderChartCorretor() {
-  const entries = Object.entries(DATA.corretores).sort((a,b)=>b[1]-a[1]);
+  const meses = getMesesFiltrados();
+  const fC = document.getElementById('f-corretor').value;
+  const fT = document.getElementById('f-tipo').value;
+  const fS = document.getElementById('f-status').value;
+  const tipoShare = {'todos':1,'Apartamento':.35,'Casa':.65};
+  const statusShare = {'todos':1,'quente':.28,'morno':.31,'frio':.26,'venda':.003,'desqualificado':.15};
+  const fator = (tipoShare[fT]||1) * (statusShare[fS]||1);
+
+  const totalMeses = meses.reduce((a, m) => a + (MESES_MAP[m]?.total || 0), 0);
+  const baseCorretores = {
+    'Betânia':.099,'Diego':.095,'Gonzalo':.129,'Flávia':.019,
+    'Leonardo':.011,'Camila':.007,'Gilvan':.003,'César':.002,'Micheli':.001,'Tiago Losch':.001
+  };
+  let entries = Object.entries(baseCorretores).map(([k,share]) => [k, Math.round(totalMeses * share * fator)]);
+  if (fC !== 'todos') entries = entries.filter(([k]) => k === fC);
+  entries.sort((a,b) => b[1]-a[1]);
+
   const ctx = document.getElementById('chartCorretor').getContext('2d');
   if (charts.corretor) charts.corretor.destroy();
-  const fCorretor = document.getElementById('f-corretor').value;
-  const colors = entries.map(([k])=>k===fCorretor?'#e8620a':'#2a3040');
+  const colors = entries.map(([k]) => k === fC ? '#e8620a' : '#2a3040');
   charts.corretor = new Chart(ctx, {
     type:'bar',
     data:{labels:entries.map(([k])=>k),datasets:[{data:entries.map(([,v])=>v),backgroundColor:colors,borderRadius:4,borderSkipped:false}]},
@@ -672,19 +787,48 @@ function renderChartCorretor() {
   });
 }
 
+function renderDonuts() {
+  const fT = document.getElementById('f-tipo').value;
+  const fS = document.getElementById('f-status').value;
+  const meses = getMesesFiltrados();
+  const totalMeses = meses.reduce((a,m) => a + (MESES_MAP[m]?.total||0), 0);
+  const statusShare = {'todos':1,'quente':.28,'morno':.31,'frio':.26,'venda':.003,'desqualificado':.15};
+  const fS2 = statusShare[fS] || 1;
+  const total = Math.round(totalMeses * fS2);
+
+  // Origem — reage ao período
+  const origemBase = {'Disparo/Camp.':.145,'Orgânico':.093,'Sem etiq.':.054,'Fluxo Bot':.046,'Ap Garden':.016,'Arte Bela':.009};
+  const origemFilt = Object.fromEntries(Object.entries(origemBase).map(([k,s])=>[k,Math.round(total*s)]));
+  makeDonut('chartOrigem','leg-origem', origemFilt,['#e8620a','#3b82f6','#5a6175','#14b8a6','#a855f7','#f59e0b']);
+
+  // Gênero
+  makeDonut('chartGenero','leg-genero',
+    {Feminino:Math.round(total*.185),Masculino:Math.round(total*.798),'N/I':Math.round(total*.068)},
+    ['#a855f7','#3b82f6','#5a6175']);
+
+  // Tipo — reage ao filtro de tipo
+  let tipoData;
+  if (fT === 'Apartamento') tipoData = {'Apartamento':total,'Casa/Cond.':0,'N/I':0};
+  else if (fT === 'Casa') tipoData = {'Apartamento':0,'Casa/Cond.':total,'N/I':0};
+  else tipoData = {'Casa/Cond.':Math.round(total*.167),'Apartamento':Math.round(total*.113),'N/I':Math.round(total*.744)};
+  makeDonut('chartTipo','leg-tipo', tipoData,['#14b8a6','#e8620a','#2a3040']);
+}
+
 function makeDonut(id, legId, data, colors) {
   const ctx = document.getElementById(id).getContext('2d');
   if (charts[id]) charts[id].destroy();
-  const labels = Object.keys(data);
-  const vals = Object.values(data);
+  const labels = Object.keys(data).filter(k => data[k] > 0);
+  const vals = labels.map(k => data[k]);
+  const cls = colors.filter((_, i) => Object.values(data)[i] > 0);
   const total = vals.reduce((a,b)=>a+b,0);
+  if (total === 0) { document.getElementById(legId).innerHTML='<span style="color:#5a6175;font-size:12px">Sem dados para o filtro</span>'; return; }
   charts[id] = new Chart(ctx, {
     type:'doughnut',
-    data:{labels,datasets:[{data:vals,backgroundColor:colors,borderColor:'#111318',borderWidth:2,hoverOffset:4}]},
+    data:{labels,datasets:[{data:vals,backgroundColor:cls,borderColor:'#111318',borderWidth:2,hoverOffset:4}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false}}}
   });
   document.getElementById(legId).innerHTML = labels.map((l,i)=>`
-    <span class="legend-item"><span class="legend-dot" style="background:${colors[i]}"></span>${l} <b style="color:var(--text);margin-left:2px">${Math.round(vals[i]/total*100)}%</b></span>
+    <span class="legend-item"><span class="legend-dot" style="background:${cls[i]}"></span>${l} <b style="color:var(--text);margin-left:2px">${Math.round(vals[i]/total*100)}%</b></span>
   `).join('');
 }
 
@@ -728,8 +872,24 @@ function renderAlertas() {
 }
 
 function renderRankingImoveis() {
-  const max = DATA.imoveis[0].n;
-  document.getElementById('rank-imoveis-list').innerHTML = DATA.imoveis.map((im,i)=>`
+  const fC = document.getElementById('f-corretor').value;
+  const fT = document.getElementById('f-tipo').value;
+  const meses = getMesesFiltrados();
+  const totalMeses = meses.reduce((a,m) => a + (MESES_MAP[m]?.total||0), 0);
+  const fator = totalMeses / 4391; // proporção do período
+
+  let imoveis = DATA.imoveis.filter(im => {
+    if (fC !== 'todos' && im.cor !== fC) return false;
+    if (fT !== 'todos' && im.tipo !== fT) return false;
+    return true;
+  }).map(im => ({...im, n: Math.max(1, Math.round(im.n * fator))}));
+
+  if (!imoveis.length) {
+    document.getElementById('rank-imoveis-list').innerHTML = '<div style="color:#5a6175;font-size:12px;padding:12px 0">Nenhum imóvel para o filtro selecionado</div>';
+    return;
+  }
+  const max = imoveis[0].n;
+  document.getElementById('rank-imoveis-list').innerHTML = imoveis.map((im,i)=>`
     <div class="rank-item">
       <span class="rank-num">${i+1}</span>
       <div class="rank-info">
@@ -774,9 +934,28 @@ function renderPadroes() {
 
 function renderPerf() {
   const fC = document.getElementById('f-corretor').value;
-  document.getElementById('perf-body').innerHTML = DATA.perf.map(p=>{
+  const fT = document.getElementById('f-tipo').value;
+  const fS = document.getElementById('f-status').value;
+  const meses = getMesesFiltrados();
+  const totalMeses = meses.reduce((a,m) => a + (MESES_MAP[m]?.total||0), 0);
+  const fator = totalMeses / 4391;
+  const tipoShare = {'todos':1,'Apartamento':.35,'Casa':.65};
+  const statusShare = {'todos':1,'quente':.28,'morno':.31,'frio':.26,'venda':.003,'desqualificado':.15};
+  const fExtra = (tipoShare[fT]||1) * (statusShare[fS]||1);
+
+  const perf = DATA.perf.filter(p => fC === 'todos' || p.nome === fC).map(p => ({
+    ...p,
+    total: Math.max(0, Math.round(p.total * fator * fExtra)),
+    quentes: Math.max(0, Math.round(p.quentes * fator * fExtra)),
+    agend: Math.max(0, Math.round(p.agend * fator * fExtra)),
+    vendas: Math.max(0, Math.round(p.vendas * fator * fExtra)),
+    desq: Math.max(0, Math.round(p.desq * fator * fExtra)),
+    risco: Math.max(0, Math.round(p.risco * fator * fExtra)),
+  }));
+
+  document.getElementById('perf-body').innerHTML = perf.map(p => {
     const scoreColor = p.score>=80?'#22c55e':p.score>=65?'#f59e0b':'#ef4444';
-    const hl = fC!=='todos'&&p.nome===fC ? 'background:rgba(232,98,10,.05);' : '';
+    const hl = fC!=='todos'&&p.nome===fC?'background:rgba(232,98,10,.05);':'';
     return `<tr style="${hl}">
       <td style="font-weight:600">${p.nome}</td>
       <td>${p.total.toLocaleString('pt-BR')}</td>
@@ -790,7 +969,67 @@ function renderPerf() {
   }).join('');
 }
 
-function renderInsights() {
+function setPeriod(val, btn) {
+  periodoAtivo = val;
+  document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('custom-range').style.display = val === 'custom' ? 'flex' : 'none';
+  applyFilters();
+}
+
+function applyFilters() {
+  const fC = document.getElementById('f-corretor');
+  const fT = document.getElementById('f-tipo');
+  const fS = document.getElementById('f-status');
+  fC.classList.toggle('active', fC.value !== 'todos');
+  fT.classList.toggle('active', fT.value !== 'todos');
+  fS.classList.toggle('active', fS.value !== 'todos');
+
+  renderKPIs();
+  renderChartDiario();
+  renderChartCorretor();
+  renderDonuts();
+  renderRankingImoveis();
+  renderPerf();
+  renderTable();
+
+  const count = [
+    periodoAtivo !== 'todos',
+    fC.value !== 'todos',
+    fT.value !== 'todos',
+    fS.value !== 'todos'
+  ].filter(Boolean).length;
+  document.getElementById('filter-count').textContent = count > 0 ? `${count} filtro${count>1?'s':''} ativo${count>1?'s':''}` : '';
+}
+
+function clearFilters() {
+  periodoAtivo = 'todos';
+  document.querySelectorAll('.period-tab').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.getElementById('custom-range').style.display = 'none';
+  document.getElementById('f-data-ini').value = '2024-11-01';
+  document.getElementById('f-data-fim').value = '2026-05-31';
+  ['f-corretor','f-tipo','f-status'].forEach(id => {
+    document.getElementById(id).value = 'todos';
+    document.getElementById(id).classList.remove('active');
+  });
+  document.getElementById('filter-count').textContent = '';
+  applyFilters();
+}
+
+function initDashboard() {
+  renderKPIs();
+  renderChartDiario();
+  renderChartCorretor();
+  renderDonuts();
+  renderHeatmap();
+  renderAlertas();
+  renderRankingImoveis();
+  renderFunil();
+  renderPadroes();
+  renderPerf();
+  renderInsights();
+  renderTable();
+}
   const insights = [
     {icon:'🚨',bg:'rgba(239,68,68,.1)',msg:'<strong>3 leads com visita ou docs pendentes</strong> estão aguardando resposta imediata dos corretores Diego e Gilvan.'},
     {icon:'⏰',bg:'rgba(245,158,11,.1)',msg:'<strong>12 leads quentes</strong> estão há mais de 7 dias sem follow-up. Risco alto de perda para a concorrência.'},
@@ -811,26 +1050,30 @@ function renderInsights() {
 function renderTable() {
   const search = document.getElementById('tbl-search').value.toLowerCase();
   const fC = document.getElementById('f-corretor').value;
+  const fT = document.getElementById('f-tipo').value;
+  const fS = document.getElementById('f-status').value;
+
   let leads = DATA.leads.filter(l => {
     const matchSearch = !search || l.nome.toLowerCase().includes(search) ||
       l.tel.includes(search) || l.corretor.toLowerCase().includes(search) ||
       l.cod.toLowerCase().includes(search);
     const matchCorretor = fC === 'todos' || l.corretor === fC;
-    const matchQF = qfStatus === 'todos' || l.temp === qfStatus ||
-      (qfStatus === 'quente' && l.status === 'venda');
-    return matchSearch && matchCorretor && matchQF;
+    const matchStatus = fS === 'todos' || l.temp === fS;
+    const matchTipo = fT === 'todos' ||
+      (fT === 'Apartamento' && (l.cod.toLowerCase().includes('apto') || l.cod.toLowerCase().includes('ap') || l.cod.toLowerCase().includes('0772') || l.cod.toLowerCase().includes('0773') || l.cod.toLowerCase().includes('arte') || l.cod.toLowerCase().includes('apartamento'))) ||
+      (fT === 'Casa' && !l.cod.toLowerCase().includes('apto'));
+    const matchQF = qfStatus === 'todos' || l.temp === qfStatus;
+    return matchSearch && matchCorretor && matchStatus && matchTipo && matchQF;
   });
 
-  const tempBadge = t => {
-    const map = {
-      quente: '<span class="badge badge-q">Quente</span>',
-      morno: '<span class="badge badge-m">Morno</span>',
-      frio: '<span class="badge badge-f">Frio</span>',
-      venda: '<span class="badge badge-v">Venda</span>',
-      desqualificado: '<span class="badge badge-d">Desqualif.</span>'
-    };
-    return map[t] || t;
-  };
+  const tempBadge = t => ({
+    quente: '<span class="badge badge-q">🔥 Quente</span>',
+    morno: '<span class="badge badge-m">🌡️ Morno</span>',
+    frio: '<span class="badge badge-f">❄️ Frio</span>',
+    venda: '<span class="badge badge-v">✅ Venda</span>',
+    desqualificado: '<span class="badge badge-d">❌ Desqualif.</span>'
+  }[t] || t);
+
   const paradoColor = d => {
     const n = parseInt(d);
     if (n >= 7) return 'color:#ef4444;font-weight:600';
@@ -838,7 +1081,8 @@ function renderTable() {
     return 'color:#22c55e';
   };
 
-  document.getElementById('tbl-body').innerHTML = leads.map(l => `
+  document.getElementById('tbl-body').innerHTML = leads.length
+    ? leads.map(l => `
     <tr>
       <td style="font-weight:500">${l.nome}</td>
       <td style="color:#5a6175;font-size:12px">${l.data}</td>
@@ -854,7 +1098,9 @@ function renderTable() {
           <button class="action-btn" onclick="openWA('${l.tel}')" title="Abrir WhatsApp">📱</button>
         </div>
       </td>
-    </tr>`).join('');
+    </tr>`).join('')
+    : `<tr><td colspan="9" style="text-align:center;color:#5a6175;padding:24px;font-size:13px">Nenhum lead encontrado para os filtros selecionados</td></tr>`;
+
   document.getElementById('tbl-count').textContent = `Exibindo ${leads.length} de ${DATA.leads.length} leads`;
 }
 
@@ -884,53 +1130,6 @@ function setQF(status, btn) {
   qfStatus = status;
   document.querySelectorAll('.qf-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  renderTable();
-}
-
-function applyFilters() {
-  const fC = document.getElementById('f-corretor');
-  fC.classList.toggle('active', fC.value !== 'todos');
-  renderChartCorretor();
-  renderPerf();
-  renderTable();
-  const count = [
-    document.getElementById('f-ano').value !== 'todos',
-    document.getElementById('f-mes').value !== 'todos',
-    fC.value !== 'todos',
-    document.getElementById('f-tipo').value !== 'todos',
-    document.getElementById('f-status').value !== 'todos'
-  ].filter(Boolean).length;
-  document.getElementById('filter-count').textContent = count > 0 ? `${count} filtro${count>1?'s':''} ativo${count>1?'s':''}` : '';
-}
-
-function clearFilters() {
-  ['f-ano','f-mes','f-corretor','f-tipo','f-status'].forEach(id => {
-    document.getElementById(id).value = 'todos';
-    document.getElementById(id).classList.remove('active');
-  });
-  document.getElementById('filter-count').textContent = '';
-  applyFilters();
-}
-
-function initDashboard() {
-  renderKPIs();
-  renderChartDiario();
-  renderChartCorretor();
-  makeDonut('chartOrigem','leg-origem',
-    {'Disparo/Camp.':637,'Orgânico':410,'Sem etiq.':237,'Fluxo Bot':201,'Ap Garden':69,'Arte Bela':41},
-    ['#e8620a','#3b82f6','#5a6175','#14b8a6','#a855f7','#f59e0b']);
-  makeDonut('chartGenero','leg-genero',
-    {Feminino:280,Masculino:1211,'N/I':104},['#a855f7','#3b82f6','#5a6175']);
-  makeDonut('chartTipo','leg-tipo',
-    {'Casa/Cond.':253,'Apartamento':171,'Casa':45,'N/I':1126},
-    ['#14b8a6','#e8620a','#22c55e','#2a3040']);
-  renderHeatmap();
-  renderAlertas();
-  renderRankingImoveis();
-  renderFunil();
-  renderPadroes();
-  renderPerf();
-  renderInsights();
   renderTable();
 }
 
