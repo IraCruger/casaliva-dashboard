@@ -442,8 +442,16 @@ h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif}
 <div class="chart-card" style="margin-bottom:12px">
   <table class="perf-table" id="perf-table">
     <thead><tr>
-      <th>Corretor</th><th>Total leads</th><th>Leads quentes</th><th>Agendamentos</th>
-      <th>Vendas</th><th>Desqualificados</th><th>Sem follow-up 7d+</th><th>Score</th>
+      <th>Corretor</th>
+      <th title="Total de leads no período filtrado">Leads período</th>
+      <th title="Total histórico de leads">Total geral</th>
+      <th>🔥 Quentes</th>
+      <th>Agendamentos</th>
+      <th>✅ Vendas</th>
+      <th>Desqualif.</th>
+      <th>Risco 7d+</th>
+      <th>Imóveis top</th>
+      <th>Score</th>
     </tr></thead>
     <tbody id="perf-body"></tbody>
   </table>
@@ -1077,33 +1085,44 @@ function renderPerf() {
   const fT = document.getElementById('f-tipo').value;
   const fS = document.getElementById('f-status').value;
   const meses = getMesesFiltrados();
+  const isTrimestre = meses.some(m => m.startsWith('2026'));
+
+  // Calcular fator proporcional baseado no período filtrado
   const totalMeses = meses.reduce((a,m) => a + (MESES_MAP[m]?.total||0), 0);
-  const fator = totalMeses / 4391;
+  const fatorPeriodo = totalMeses / 1595; // total real com data
   const tipoShare = {'todos':1,'Apartamento':.35,'Casa':.65};
   const statusShare = {'todos':1,'quente':.28,'morno':.31,'frio':.26,'venda':.003,'desqualificado':.15};
   const fExtra = (tipoShare[fT]||1) * (statusShare[fS]||1);
 
   const perf = DATA.perf.filter(p => fC === 'todos' || p.nome === fC).map(p => ({
     ...p,
-    total: Math.max(0, Math.round(p.total * fator * fExtra)),
-    quentes: Math.max(0, Math.round(p.quentes * fator * fExtra)),
-    agend: Math.max(0, Math.round(p.agend * fator * fExtra)),
-    vendas: Math.max(0, Math.round(p.vendas * fator * fExtra)),
-    desq: Math.max(0, Math.round(p.desq * fator * fExtra)),
-    risco: Math.max(0, Math.round(p.risco * fator * fExtra)),
-  }));
+    // Usar dado real do corretor nos meses filtrados
+    totalFilt: Math.max(0, meses.reduce((a,m) => a + ((MESES_MAP[m]?.cor?.[p.nome])||0), 0)),
+    quentes: Math.max(0, Math.round(p.quentes * fatorPeriodo * fExtra)),
+    agend: Math.max(0, Math.round(p.agend * fatorPeriodo * fExtra)),
+    vendas: Math.max(0, Math.round(p.vendas * fatorPeriodo * fExtra)),
+    desq: Math.max(0, Math.round(p.desq * fatorPeriodo * fExtra)),
+    risco: Math.max(0, Math.round(p.risco * fatorPeriodo * fExtra)),
+  })).filter(p => fC !== 'todos' || p.total > 0);
+
+  // Cabeçalho dinâmico
+  const periodoLabel = periodoAtivo === 'todos' ? 'Total' :
+    periodoAtivo === '2026' ? '2026' : periodoAtivo === 'custom' ? 'Período' : periodoAtivo;
 
   document.getElementById('perf-body').innerHTML = perf.map(p => {
     const scoreColor = p.score>=80?'#22c55e':p.score>=65?'#f59e0b':'#ef4444';
     const hl = fC!=='todos'&&p.nome===fC?'background:rgba(232,98,10,.05);':'';
+    const imoveisStr = p.imoveis && p.imoveis.length ? p.imoveis.slice(0,2).join(' · ') : '—';
     return `<tr style="${hl}">
       <td style="font-weight:600">${p.nome}</td>
-      <td>${p.total.toLocaleString('pt-BR')}</td>
+      <td style="font-weight:600;color:var(--accent)">${p.totalFilt.toLocaleString('pt-BR')}</td>
+      <td style="color:#5a6175;font-size:11px">${p.total.toLocaleString('pt-BR')}</td>
       <td><span class="badge badge-q">${p.quentes}</span></td>
       <td>${p.agend}</td>
       <td><span class="badge badge-v">${p.vendas}</span></td>
       <td><span class="badge badge-d">${p.desq}</span></td>
-      <td>${p.risco>20?`<span class="badge badge-m">${p.risco}</span>`:p.risco}</td>
+      <td>${p.risco>5?`<span class="badge badge-m">${p.risco}</span>`:p.risco}</td>
+      <td style="font-size:11px;color:#5a6175">${imoveisStr}</td>
       <td><div class="score-bar"><div class="score-track"><div class="score-fill" style="width:${p.score}%;background:${scoreColor}"></div></div><span style="font-size:12px;color:${scoreColor};font-weight:600">${p.score}</span></div></td>
     </tr>`;
   }).join('');
