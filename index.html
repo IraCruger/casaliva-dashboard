@@ -235,8 +235,8 @@ h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif}
     <h2>Bem-vindo de volta</h2>
     <p>Acesso restrito a corretores e gestores autorizados</p>
     <div class="form-group">
-      <label>E-mail</label>
-      <input type="text" id="login-email" placeholder="@seunome ou email completo" autocomplete="username">
+      <label>Usuário</label>
+      <input type="text" id="login-email" placeholder="Ex: gonzalo" autocomplete="username">
     </div>
     <div class="form-group">
       <label>Senha</label>
@@ -518,21 +518,23 @@ function doLogin() {
   const errEl = document.getElementById('login-error');
   if (!emailEl || !passEl) return;
 
-  const email = emailEl.value.trim().toLowerCase();
+  let input = emailEl.value.trim().toLowerCase();
   const pass = passEl.value.trim();
 
-  // Aceita: @primeironome, primeironome, nome completo ou email completo
+  // Remove @ do início se houver
+  if (input.startsWith('@')) input = input.slice(1);
+
+  // Remove @casaliva.com.br se o usuário digitou email completo
+  if (input.includes('@')) input = input.split('@')[0];
+
+  // Remove acentos para comparação
   const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const raw = norm(email.startsWith('@') ? email.slice(1) : email);
+  const inputNorm = norm(input);
+
   const user = USERS.find(u => {
-    const prefix = norm(u.email.split('@')[0]);         // ex: "tiago", "gonzalo"
-    const firstName = norm(u.name.split(' ')[0]);       // ex: "tiago", "flávia" → "flavia"
-    const fullName = norm(u.name);                      // ex: "tiago losch"
-    const matchId = norm(u.email) === raw ||
-      prefix === raw ||
-      firstName === raw ||
-      fullName === raw;
-    return matchId && u.password === pass;
+    const prefix = norm(u.email.split('@')[0]);     // gonzalo, betania, diego...
+    const firstName = norm(u.name.split(' ')[0]);   // Gonzalo→gonzalo, Tiago Losch→tiago
+    return (prefix === inputNorm || firstName === inputNorm) && u.password === pass;
   });
 
   if (user) {
