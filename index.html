@@ -522,15 +522,11 @@ function doLogin() {
   const pass = passEl.value.trim();
 
   // Aceita e-mail completo OU só o nome (ex: "gonzalo")
-  const user = USERS.find(u =>
-    u.email === email ||
-    u.email.split('@')[0] === email ||
-    u.name.toLowerCase() === email
-  ) && USERS.find(u => {
-    const matchEmail = u.email === email ||
+  const user = USERS.find(u => {
+    const matchId = u.email === email ||
       u.email.split('@')[0] === email ||
       u.name.toLowerCase() === email;
-    return matchEmail && u.password === pass;
+    return matchId && u.password === pass;
   });
 
   if (user) {
