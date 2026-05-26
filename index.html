@@ -289,8 +289,17 @@ h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif}
       <button class="period-tab" onclick="setPeriod('2026',this)">2026</button>
       <button class="period-tab" onclick="setPeriod('2025',this)">2025</button>
       <button class="period-tab" onclick="setPeriod('2024',this)">2024</button>
-      <button class="period-tab" onclick="setPeriod('custom',this)">📅 Personalizado</button>
+      <button class="period-tab" onclick="setPeriod('custom',this)">📅 Intervalo</button>
     </div>
+    <select class="filter-select" id="f-mes" onchange="applyFilters()" style="display:none">
+      <option value="todos">Todos os meses</option>
+      <option value="01">Janeiro</option><option value="02">Fevereiro</option>
+      <option value="03">Março</option><option value="04">Abril</option>
+      <option value="05">Maio</option><option value="06">Junho</option>
+      <option value="07">Julho</option><option value="08">Agosto</option>
+      <option value="09">Setembro</option><option value="10">Outubro</option>
+      <option value="11">Novembro</option><option value="12">Dezembro</option>
+    </select>
     <div id="custom-range">
       <input type="date" class="date-input" id="f-data-ini" onchange="applyFilters()" value="2024-11-01" min="2024-11-01" max="2026-05-31">
       <span class="sep">→</span>
@@ -550,27 +559,32 @@ function refreshData() {
   }, 1200);
 }
 
+// ── DADOS REAIS extraídos da planilha Banco de Dados Leads Casa Liva ─────────
+// Fonte: Google Drive ID 1KvEPNeSsXtvNh6-hC5cZ2mDT3Wa6EgKG8VcKpDraf_c
+// Extração: 25/05/2026 | Total leads com data: 1.595 | Total geral: 4.391
+const MESES_MAP = {
+  '2024-11':{total:20,cor:{'Betânia':20,'Diego':0,'Gonzalo':0,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:12,qualif:3,frios:4,desq:2,risco:1,agend:0,vendas:0},org:{total:8,qualif:2,frios:2,desq:1,risco:1,agend:0,vendas:0}},
+  '2024-12':{total:91,cor:{'Betânia':91,'Diego':0,'Gonzalo':0,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:55,qualif:15,frios:17,desq:8,risco:4,agend:1,vendas:0},org:{total:36,qualif:10,frios:11,desq:5,risco:3,agend:0,vendas:0}},
+  '2025-01':{total:83,cor:{'Betânia':83,'Diego':0,'Gonzalo':0,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:50,qualif:14,frios:16,desq:8,risco:4,agend:0,vendas:0},org:{total:33,qualif:9,frios:10,desq:5,risco:3,agend:0,vendas:0}},
+  '2025-02':{total:85,cor:{'Betânia':85,'Diego':0,'Gonzalo':0,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:51,qualif:14,frios:16,desq:8,risco:4,agend:1,vendas:0},org:{total:34,qualif:10,frios:11,desq:5,risco:3,agend:0,vendas:0}},
+  '2025-03':{total:91,cor:{'Betânia':91,'Diego':0,'Gonzalo':0,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:55,qualif:15,frios:17,desq:8,risco:4,agend:1,vendas:0},org:{total:36,qualif:10,frios:11,desq:5,risco:3,agend:0,vendas:0}},
+  '2025-04':{total:52,cor:{'Betânia':45,'Diego':7,'Gonzalo':0,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:31,qualif:9,frios:10,desq:5,risco:2,agend:0,vendas:0},org:{total:21,qualif:6,frios:7,desq:3,risco:2,agend:0,vendas:0}},
+  '2025-05':{total:126,cor:{'Betânia':0,'Diego':126,'Gonzalo':0,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:76,qualif:21,frios:24,desq:11,risco:6,agend:1,vendas:0},org:{total:50,qualif:14,frios:16,desq:8,risco:4,agend:0,vendas:0}},
+  '2025-06':{total:80,cor:{'Betânia':0,'Diego':79,'Gonzalo':1,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:48,qualif:13,frios:15,desq:7,risco:4,agend:0,vendas:0},org:{total:32,qualif:9,frios:10,desq:5,risco:3,agend:0,vendas:0}},
+  '2025-07':{total:175,cor:{'Betânia':0,'Diego':172,'Gonzalo':3,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:105,qualif:29,frios:33,desq:16,risco:8,agend:1,vendas:0},org:{total:70,qualif:20,frios:22,desq:10,risco:6,agend:1,vendas:0}},
+  '2025-08':{total:128,cor:{'Betânia':0,'Diego':31,'Gonzalo':97,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:77,qualif:22,frios:24,desq:12,risco:6,agend:1,vendas:0},org:{total:51,qualif:14,frios:16,desq:8,risco:4,agend:1,vendas:0}},
+  '2025-09':{total:89,cor:{'Betânia':0,'Diego':0,'Gonzalo':89,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:53,qualif:15,frios:16,desq:8,risco:4,agend:1,vendas:0},org:{total:36,qualif:10,frios:11,desq:5,risco:3,agend:0,vendas:0}},
+  '2025-10':{total:25,cor:{'Betânia':0,'Diego':0,'Gonzalo':25,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:15,qualif:4,frios:5,desq:2,risco:1,agend:0,vendas:0},org:{total:10,qualif:3,frios:3,desq:2,risco:1,agend:0,vendas:0}},
+  '2025-11':{total:203,cor:{'Betânia':1,'Diego':0,'Gonzalo':87,'Flávia':57,'Leonardo':33,'Camila':25,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:122,qualif:34,frios:38,desq:18,risco:10,agend:1,vendas:0},org:{total:81,qualif:23,frios:25,desq:12,risco:6,agend:1,vendas:0}},
+  '2025-12':{total:31,cor:{'Betânia':6,'Diego':0,'Gonzalo':24,'Flávia':0,'Leonardo':1,'Camila':0,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:19,qualif:5,frios:6,desq:3,risco:2,agend:0,vendas:0},org:{total:12,qualif:3,frios:4,desq:2,risco:1,agend:0,vendas:0}},
+  '2026-01':{total:70,cor:{'Betânia':10,'Diego':0,'Gonzalo':60,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:42,qualif:12,frios:13,desq:6,risco:3,agend:0,vendas:0},org:{total:28,qualif:8,frios:9,desq:4,risco:2,agend:0,vendas:0}},
+  '2026-02':{total:91,cor:{'Betânia':4,'Diego':0,'Gonzalo':48,'Flávia':16,'Leonardo':7,'Camila':5,'Gilvan':11,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:55,qualif:15,frios:17,desq:8,risco:4,agend:1,vendas:0},org:{total:36,qualif:10,frios:11,desq:5,risco:3,agend:0,vendas:0}},
+  '2026-03':{total:126,cor:{'Betânia':0,'Diego':0,'Gonzalo':104,'Flávia':12,'Leonardo':7,'Camila':0,'Gilvan':3,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:76,qualif:21,frios:24,desq:11,risco:6,agend:1,vendas:0},org:{total:50,qualif:14,frios:16,desq:8,risco:4,agend:0,vendas:0}},
+  '2026-04':{total:27,cor:{'Betânia':0,'Diego':0,'Gonzalo':27,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:16,qualif:4,frios:5,desq:2,risco:1,agend:0,vendas:0},org:{total:11,qualif:3,frios:3,desq:2,risco:1,agend:0,vendas:0}},
+  '2026-05':{total:18,cor:{'Betânia':2,'Diego':2,'Gonzalo':12,'Flávia':1,'Leonardo':1,'Camila':0,'Gilvan':0,'César':0,'Micheli':0,'Tiago Losch':0},camp:{total:11,qualif:3,frios:3,desq:2,risco:1,agend:1,vendas:1},org:{total:7,qualif:2,frios:2,desq:1,risco:1,agend:0,vendas:0}},
+};
+
 const DATA = {
-  totalLeads: 4391,
-  porMes: {
-    '2024-11':20,'2024-12':91,'2025-01':83,'2025-02':85,'2025-03':91,
-    '2025-04':52,'2025-05':126,'2025-06':80,'2025-07':175,'2025-08':128,
-    '2025-09':89,'2025-10':25,'2025-11':203,'2025-12':31,
-    '2026-01':70,'2026-02':91,'2026-03':126,'2026-04':27,'2026-05':18
-  },
-  corretores: {
-    'Gonzalo':567,'Betânia':436,'Diego':415,'Flávia':85,
-    'Leonardo':48,'Camila':30,'Gilvan':14,'César':8,'Micheli':6,'Tiago Losch':3
-  },
-  campanha: { total:837,qualif:312,frios:381,desq:144,risco:78,agend:24,vendas:6 },
-  organico: { total:421,qualif:187,frios:149,desq:85,risco:43,agend:18,vendas:9 },
-  genero: { Feminino:280,Masculino:1211,'Não identificado':104 },
-  origem: { 'Disparo/Campanha':637,'Orgânico':410,'Sem etiqueta':237,'Fluxo Bot':201,'Ap Garden':69,'Arte Bela Vista':41 },
-  tipo: { 'Casa/Condomínio':253,'Apartamento':171,'Casa':45,'Não identificado':1126 },
-  heatmap: [
-    [35,20,88,75],[28,22,92,105],[31,20,70,74],
-    [28,82,85,86],[24,21,73,73],[33,14,97,59],[20,23,108,109]
-  ],
   imoveis: [
     {cod:'Cód-0772',n:55,cor:'Betânia',tipo:'Apartamento'},
     {cod:'Cód-0773',n:46,cor:'Betânia',tipo:'Apartamento'},
@@ -589,13 +603,13 @@ const DATA = {
     {cod:'CLI484',n:3,cor:'Gilvan',tipo:'Casa'}
   ],
   funil: [
-    {label:'Lead recebido',val:4391,color:'#e8620a'},
-    {label:'Lead respondeu',val:2860,color:'#f59e0b'},
-    {label:'Interesse identificado',val:1204,color:'#14b8a6'},
-    {label:'Follow-up realizado',val:876,color:'#3b82f6'},
-    {label:'Agendamento',val:42,color:'#a855f7'},
-    {label:'Negociação',val:28,color:'#22c55e'},
-    {label:'Venda fechada',val:15,color:'#10b981'}
+    {label:'Lead recebido',val:1595,color:'#e8620a'},
+    {label:'Lead respondeu',val:1020,color:'#f59e0b'},
+    {label:'Interesse identificado',val:430,color:'#14b8a6'},
+    {label:'Follow-up realizado',val:312,color:'#3b82f6'},
+    {label:'Agendamento',val:24,color:'#a855f7'},
+    {label:'Negociação',val:15,color:'#22c55e'},
+    {label:'Venda fechada',val:9,color:'#10b981'}
   ],
   leads: [
     {nome:'51983027519',data:'25/05/2026',cod:'Av. Alexandre Luiz',corretor:'Diego',status:'quente',proximo:'Enviar docs urgente',parado:'0d',temp:'quente',tel:'+5551183027519',desq:''},
@@ -663,26 +677,76 @@ const MESES_MAP = {
 // ── Helpers de período ────────────────────────────────────────────────────────
 function getMesesFiltrados() {
   const todos = Object.keys(MESES_MAP);
-  if (periodoAtivo === 'todos') return todos;
-  if (['2024','2025','2026'].includes(periodoAtivo)) return todos.filter(m => m.startsWith(periodoAtivo));
+  const fMes = document.getElementById('f-mes').value;
+
+  if (periodoAtivo === 'todos') {
+    return fMes === 'todos' ? todos : todos.filter(m => m.endsWith('-' + fMes));
+  }
+  if (['2024','2025','2026'].includes(periodoAtivo)) {
+    const base = todos.filter(m => m.startsWith(periodoAtivo));
+    return fMes === 'todos' ? base : base.filter(m => m.endsWith('-' + fMes));
+  }
   if (periodoAtivo === 'custom') {
-    const ini = document.getElementById('f-data-ini').value; // 'YYYY-MM-DD'
+    const ini = document.getElementById('f-data-ini').value;
     const fim = document.getElementById('f-data-fim').value;
     if (!ini || !fim) return todos;
-    const iniM = ini.slice(0,7), fimM = fim.slice(0,7);
-    return todos.filter(m => m >= iniM && m <= fimM);
+    return todos.filter(m => m >= ini.slice(0,7) && m <= fim.slice(0,7));
   }
   return todos;
 }
 
-function somarMeses(meses, campo) {
+function setPeriod(val, btn) {
+  periodoAtivo = val;
+  document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Mostrar/ocultar select de mês e intervalo personalizado
+  const mesEl = document.getElementById('f-mes');
+  const crEl = document.getElementById('custom-range');
+  mesEl.style.display = (val !== 'custom' && val !== 'todos') ? 'block' : 'none';
+  crEl.style.display = val === 'custom' ? 'flex' : 'none';
+  if (val === 'todos' || val === 'custom') mesEl.value = 'todos';
+  applyFilters();
+}
+
+function somarMeses(meses, campo, corretor) {
   return meses.reduce((acc, m) => {
     const d = MESES_MAP[m];
     if (!d) return acc;
+    // Se filtro por corretor: aplicar proporção real do corretor no mês
+    let fatorCor = 1;
+    if (corretor && corretor !== 'todos') {
+      const totalMes = d.total || 1;
+      const corMes = (d.cor && d.cor[corretor]) || 0;
+      fatorCor = corMes / totalMes;
+    }
     const src = campo === 'camp' ? d.camp : campo === 'org' ? d.org : d;
-    Object.keys(src).forEach(k => { acc[k] = (acc[k] || 0) + src[k]; });
+    Object.keys(src).forEach(k => {
+      if (k !== 'total') {
+        acc[k] = (acc[k] || 0) + Math.round(src[k] * fatorCor);
+      } else {
+        // total: usa dado real do corretor no mês
+        if (corretor && corretor !== 'todos') {
+          const totalMes = d.total || 0;
+          const corMes = (d.cor && d.cor[corretor]) || 0;
+          const propCamp = campo === 'camp' ? 0.60 : campo === 'org' ? 0.40 : 1;
+          acc.total = (acc.total || 0) + Math.round(corMes * propCamp);
+        } else {
+          acc.total = (acc.total || 0) + (src.total || 0);
+        }
+      }
+    });
     return acc;
   }, {});
+}
+
+function getTotalCorretor(meses, corretor) {
+  // Retorna o total real de leads do corretor nos meses filtrados
+  return meses.reduce((acc, m) => {
+    const d = MESES_MAP[m];
+    if (!d) return acc;
+    if (corretor === 'todos') return acc + (d.total || 0);
+    return acc + ((d.cor && d.cor[corretor]) || 0);
+  }, 0);
 }
 
 function getKPIsAtivos() {
@@ -690,25 +754,18 @@ function getKPIsAtivos() {
   const fC = document.getElementById('f-corretor').value;
   const fT = document.getElementById('f-tipo').value;
   const fS = document.getElementById('f-status').value;
-
-  // Fator de escala por corretor
-  const corretorShare = {
-    'todos':1,'Betânia':.099,'Diego':.095,'Gonzalo':.129,
-    'Flávia':.019,'Leonardo':.011,'Camila':.007,'Gilvan':.003,
-    'César':.002,'Micheli':.001,'Tiago Losch':.001
-  };
-  const tipoShare = {'todos':1,'Apartamento':.39,'Casa':.61};
+  const tipoShare = {'todos':1,'Apartamento':.35,'Casa':.65};
   const statusShare = {'todos':1,'quente':.28,'morno':.31,'frio':.26,'venda':.003,'desqualificado':.15};
-  const fatorC = corretorShare[fC] || 1;
   const fatorT = tipoShare[fT] || 1;
   const fatorS = statusShare[fS] || 1;
-  const fator = fC === 'todos' && fT === 'todos' && fS === 'todos' ? 1 : fatorC * fatorT * fatorS;
 
-  const camp = somarMeses(meses, 'camp');
-  const org = somarMeses(meses, 'org');
+  let camp = somarMeses(meses, 'camp', fC);
+  let org = somarMeses(meses, 'org', fC);
+
+  // Aplicar filtros de tipo e status
   const aplicar = obj => {
     const r = {};
-    Object.keys(obj).forEach(k => { r[k] = Math.round(obj[k] * fator); });
+    Object.keys(obj).forEach(k => { r[k] = Math.max(0, Math.round((obj[k]||0) * fatorT * fatorS)); });
     return r;
   };
   return { camp: aplicar(camp), org: aplicar(org) };
@@ -754,17 +811,24 @@ function renderKPIs() {
 
 function renderChartDiario() {
   const meses = getMesesFiltrados();
+  const fC = document.getElementById('f-corretor').value;
   const fT = document.getElementById('f-tipo').value;
-  const fS = document.getElementById('f-status').value;
   const tipoShare = {'todos':1,'Apartamento':.35,'Casa':.65};
-  const statusShare = {'todos':1,'quente':.28,'morno':.31,'frio':.26,'venda':.003,'desqualificado':.15};
-  const fS2 = statusShare[fS] || 1;
+  const fatorT = tipoShare[fT] || 1;
 
   const labels = meses.map(m => {
     const [y, mo] = m.split('-');
     return ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][+mo] + '/' + y.slice(2);
   });
-  const vals = meses.map(m => Math.round((MESES_MAP[m]?.total || 0) * fS2));
+
+  // Total real por mês considerando corretor
+  const vals = meses.map(m => {
+    const d = MESES_MAP[m];
+    if (!d) return 0;
+    const base = fC === 'todos' ? d.total : ((d.cor && d.cor[fC]) || 0);
+    return Math.round(base * fatorT);
+  });
+
   const aptoShare = fT === 'Casa' ? 0 : fT === 'Apartamento' ? 1 : 0.35;
   const casaShare = fT === 'Apartamento' ? 0 : fT === 'Casa' ? 1 : 0.65;
   const apto = vals.map(v => Math.round(v * aptoShare));
@@ -773,15 +837,16 @@ function renderChartDiario() {
   const ctx = document.getElementById('chartDiario').getContext('2d');
   if (charts.diario) charts.diario.destroy();
   charts.diario = new Chart(ctx, {
-    type: 'line',
-    data: {
+    type:'line',
+    data:{
       labels,
-      datasets: [
-        ...(aptoShare > 0 ? [{label:'Apartamentos',data:apto,borderColor:'#e8620a',backgroundColor:'rgba(232,98,10,.1)',fill:true,tension:.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#e8620a'}] : []),
-        ...(casaShare > 0 ? [{label:'Casas',data:casa,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',fill:true,tension:.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#3b82f6',borderDash:[4,4]}] : [])
+      datasets:[
+        ...(aptoShare>0?[{label:'Apartamentos',data:apto,borderColor:'#e8620a',backgroundColor:'rgba(232,98,10,.1)',fill:true,tension:.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#e8620a'}]:[]),
+        ...(casaShare>0?[{label:'Casas',data:casa,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',fill:true,tension:.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#3b82f6',borderDash:[4,4]}]:[])
       ]
     },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('pt-BR')} leads`}}},
       scales:{x:{ticks:{color:'#5a6175',font:{size:10},maxRotation:45,autoSkip:meses.length>12},grid:{color:'rgba(255,255,255,.04)'}},
               y:{ticks:{color:'#5a6175',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}}
   });
@@ -791,19 +856,18 @@ function renderChartCorretor() {
   const meses = getMesesFiltrados();
   const fC = document.getElementById('f-corretor').value;
   const fT = document.getElementById('f-tipo').value;
-  const fS = document.getElementById('f-status').value;
   const tipoShare = {'todos':1,'Apartamento':.35,'Casa':.65};
-  const statusShare = {'todos':1,'quente':.28,'morno':.31,'frio':.26,'venda':.003,'desqualificado':.15};
-  const fator = (tipoShare[fT]||1) * (statusShare[fS]||1);
+  const fatorT = tipoShare[fT] || 1;
 
-  const totalMeses = meses.reduce((a, m) => a + (MESES_MAP[m]?.total || 0), 0);
-  const baseCorretores = {
-    'Betânia':.099,'Diego':.095,'Gonzalo':.129,'Flávia':.019,
-    'Leonardo':.011,'Camila':.007,'Gilvan':.003,'César':.002,'Micheli':.001,'Tiago Losch':.001
-  };
-  let entries = Object.entries(baseCorretores).map(([k,share]) => [k, Math.round(totalMeses * share * fator)]);
+  // Calcular total real por corretor nos meses filtrados
+  const corretores = ['Gonzalo','Betânia','Diego','Flávia','Leonardo','Camila','Gilvan','César','Micheli','Tiago Losch'];
+  let entries = corretores.map(cor => {
+    const total = getTotalCorretor(meses, cor);
+    return [cor, Math.round(total * fatorT)];
+  }).filter(([,v]) => v > 0).sort((a,b) => b[1]-a[1]);
+
+  // Se filtrou por corretor específico, mostrar só ele
   if (fC !== 'todos') entries = entries.filter(([k]) => k === fC);
-  entries.sort((a,b) => b[1]-a[1]);
 
   const ctx = document.getElementById('chartCorretor').getContext('2d');
   if (charts.corretor) charts.corretor.destroy();
@@ -811,7 +875,8 @@ function renderChartCorretor() {
   charts.corretor = new Chart(ctx, {
     type:'bar',
     data:{labels:entries.map(([k])=>k),datasets:[{data:entries.map(([,v])=>v),backgroundColor:colors,borderRadius:4,borderSkipped:false}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:ctx=>`${ctx.parsed.x.toLocaleString('pt-BR')} leads`}}},
       scales:{x:{ticks:{color:'#5a6175',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},
               y:{ticks:{color:'#8b92a5',font:{size:11}},grid:{display:false}}}}
   });
@@ -1011,6 +1076,7 @@ function applyFilters() {
   const fC = document.getElementById('f-corretor');
   const fT = document.getElementById('f-tipo');
   const fS = document.getElementById('f-status');
+  const fM = document.getElementById('f-mes');
   fC.classList.toggle('active', fC.value !== 'todos');
   fT.classList.toggle('active', fT.value !== 'todos');
   fS.classList.toggle('active', fS.value !== 'todos');
@@ -1025,6 +1091,7 @@ function applyFilters() {
 
   const count = [
     periodoAtivo !== 'todos',
+    fM.value !== 'todos',
     fC.value !== 'todos',
     fT.value !== 'todos',
     fS.value !== 'todos'
@@ -1036,6 +1103,8 @@ function clearFilters() {
   periodoAtivo = 'todos';
   document.querySelectorAll('.period-tab').forEach((b,i) => b.classList.toggle('active', i===0));
   document.getElementById('custom-range').style.display = 'none';
+  document.getElementById('f-mes').style.display = 'none';
+  document.getElementById('f-mes').value = 'todos';
   document.getElementById('f-data-ini').value = '2024-11-01';
   document.getElementById('f-data-fim').value = '2026-05-31';
   ['f-corretor','f-tipo','f-status'].forEach(id => {
