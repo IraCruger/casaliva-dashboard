@@ -242,7 +242,7 @@ h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif}
       <label>Senha</label>
       <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
     </div>
-    <button class="btn-login" id="btn-entrar" type="button">Entrar no Dashboard</button>
+    <button class="btn-login" onclick="doLogin()">Entrar no Dashboard</button>
     <div class="login-error" id="login-error">E-mail ou senha incorretos.</div>
   </div>
 </div>
@@ -289,17 +289,8 @@ h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif}
       <button class="period-tab" onclick="setPeriod('2026',this)">2026</button>
       <button class="period-tab" onclick="setPeriod('2025',this)">2025</button>
       <button class="period-tab" onclick="setPeriod('2024',this)">2024</button>
-      <button class="period-tab" onclick="setPeriod('custom',this)">📅 Intervalo</button>
+      <button class="period-tab" onclick="setPeriod('custom',this)">📅 Personalizado</button>
     </div>
-    <select class="filter-select" id="f-mes" onchange="applyFilters()" style="display:none">
-      <option value="todos">Todos os meses</option>
-      <option value="01">Janeiro</option><option value="02">Fevereiro</option>
-      <option value="03">Março</option><option value="04">Abril</option>
-      <option value="05">Maio</option><option value="06">Junho</option>
-      <option value="07">Julho</option><option value="08">Agosto</option>
-      <option value="09">Setembro</option><option value="10">Outubro</option>
-      <option value="11">Novembro</option><option value="12">Dezembro</option>
-    </select>
     <div id="custom-range">
       <input type="date" class="date-input" id="f-data-ini" onchange="applyFilters()" value="2024-11-01" min="2024-11-01" max="2026-05-31">
       <span class="sep">→</span>
@@ -442,16 +433,8 @@ h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif}
 <div class="chart-card" style="margin-bottom:12px">
   <table class="perf-table" id="perf-table">
     <thead><tr>
-      <th>Corretor</th>
-      <th title="Total de leads no período filtrado">Leads período</th>
-      <th title="Total histórico de leads">Total geral</th>
-      <th>🔥 Quentes</th>
-      <th>Agendamentos</th>
-      <th>✅ Vendas</th>
-      <th>Desqualif.</th>
-      <th>Risco 7d+</th>
-      <th>Imóveis top</th>
-      <th>Score</th>
+      <th>Corretor</th><th>Total leads</th><th>Leads quentes</th><th>Agendamentos</th>
+      <th>Vendas</th><th>Desqualificados</th><th>Sem follow-up 7d+</th><th>Score</th>
     </tr></thead>
     <tbody id="perf-body"></tbody>
   </table>
@@ -498,21 +481,7 @@ h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif}
 </div>
 
 <script>
-const USERS = [
-  {email:'iran@casaliva.com.br', password:'casaliva2026', name:'Iran'},
-  {email:'admin@casaliva.com.br', password:'admin123', name:'Admin'},
-  {email:'gonzalo@casaliva.com.br', password:'gonzalo123', name:'Gonzalo'},
-  {email:'betania@casaliva.com.br', password:'betania123', name:'Betânia'},
-  {email:'diego@casaliva.com.br', password:'diego123', name:'Diego'},
-  {email:'flavia@casaliva.com.br', password:'flavia123', name:'Flávia'},
-  {email:'leonardo@casaliva.com.br', password:'leonardo123', name:'Leonardo'},
-  {email:'gilvan@casaliva.com.br', password:'gilvan123', name:'Gilvan'},
-  {email:'cesar@casaliva.com.br', password:'cesar123', name:'César'},
-  {email:'michele@casaliva.com.br', password:'michele123', name:'Michele'},
-  {email:'tiago@casaliva.com.br', password:'tiago123', name:'Tiago Losch'},
-];
-
-// ===== LOGIN CASA LIVA =====
+// ===== LOGIN STANDALONE — isolado do resto do JS =====
 var LOGINS = {
   'iran':     'casaliva2026',
   'admin':    'admin123',
@@ -528,48 +497,62 @@ var LOGINS = {
 };
 
 var NOMES = {
-  'iran': 'Iran', 'admin': 'Admin', 'gonzalo': 'Gonzalo',
-  'betania': 'Betânia', 'diego': 'Diego', 'flavia': 'Flávia',
-  'leonardo': 'Leonardo', 'gilvan': 'Gilvan', 'cesar': 'César',
-  'michele': 'Michele', 'tiago': 'Tiago Losch'
+  'iran':'Iran','admin':'Admin','gonzalo':'Gonzalo','betania':'Betânia',
+  'diego':'Diego','flavia':'Flávia','leonardo':'Leonardo','gilvan':'Gilvan',
+  'cesar':'César','michele':'Michele','tiago':'Tiago Losch'
 };
 
 function fazerLogin() {
-  var campo = document.getElementById('login-email').value;
-  var senha  = document.getElementById('login-password').value;
-  var erro   = document.getElementById('login-error');
+  var inputEl = document.getElementById('login-email');
+  var passEl  = document.getElementById('login-password');
+  var errEl   = document.getElementById('login-error');
 
-  // Limpar e normalizar o campo usuário
-  campo = campo.trim().toLowerCase();
-  // Remover @ do início
+  var campo = (inputEl ? inputEl.value : '').trim().toLowerCase();
+  var senha  = (passEl  ? passEl.value  : '').trim();
+
   if (campo[0] === '@') campo = campo.slice(1);
-  // Se digitou email completo (ex: gonzalo@casaliva.com.br), pegar só a parte antes do @
-  if (campo.indexOf('@') !== -1) campo = campo.split('@')[0];
-  // Remover acentos
-  campo = campo.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  if (campo.indexOf('@') > -1) campo = campo.split('@')[0];
+  campo = campo.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-  // Verificar se existe e senha bate
   if (LOGINS[campo] && LOGINS[campo] === senha) {
-    var usuario = { name: NOMES[campo], login: campo };
-    erro.style.display = 'none';
-    try { sessionStorage.setItem('cl_user', JSON.stringify(usuario)); } catch(e) {}
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    initDashboard();
+    if (errEl) errEl.style.display = 'none';
+    try { sessionStorage.setItem('cl_user', JSON.stringify({name: NOMES[campo], login: campo})); } catch(e) {}
+    var ls = document.getElementById('login-screen');
+    var app = document.getElementById('app');
+    if (ls) ls.style.display = 'none';
+    if (app) app.style.display = 'block';
+    if (typeof initDashboard === 'function') initDashboard();
   } else {
-    erro.style.display = 'block';
+    if (errEl) errEl.style.display = 'block';
   }
 }
 
 function doLogin() { fazerLogin(); }
-document.addEventListener('DOMContentLoaded', () => {
-  var btnEntrar = document.getElementById('btn-entrar');
-  if (btnEntrar) btnEntrar.addEventListener('click', fazerLogin);
-  const passEl = document.getElementById('login-password');
-  if (passEl) passEl.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-  const emailEl = document.getElementById('login-email');
-  if (emailEl) emailEl.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+document.addEventListener('DOMContentLoaded', function() {
+  var btn = document.getElementById('btn-entrar');
+  if (btn) btn.addEventListener('click', fazerLogin);
+  var pass = document.getElementById('login-password');
+  if (pass) pass.addEventListener('keydown', function(e) { if (e.key === 'Enter') fazerLogin(); });
+  var user = document.getElementById('login-email');
+  if (user) user.addEventListener('keydown', function(e) { if (e.key === 'Enter') fazerLogin(); });
+  // Auto-login se já logado
+  try {
+    var saved = sessionStorage.getItem('cl_user');
+    if (saved) {
+      var ls = document.getElementById('login-screen');
+      var app = document.getElementById('app');
+      if (ls) ls.style.display = 'none';
+      if (app) { app.style.display = 'block'; if (typeof initDashboard === 'function') initDashboard(); }
+    }
+  } catch(e) {}
 });
+</script>
+
+<script>
+
+
+document.getElementById('login-password').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 
 function doLogout() {
   sessionStorage.removeItem('cl_user');
@@ -587,32 +570,27 @@ function refreshData() {
   }, 1200);
 }
 
-// ── DADOS REAIS extraídos da planilha Banco de Dados Leads Casa Liva ─────────
-// Fonte: Google Drive ID 1KvEPNeSsXtvNh6-hC5cZ2mDT3Wa6EgKG8VcKpDraf_c
-// Extração: 25/05/2026 | Total leads com data: 1.595 | Total geral: 4.391
-const MESES_MAP = {
-  '2024-11':{total:20,cor:{'Betânia':20,'Diego':0,'Gonzalo':0,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:12,qualif:3,frios:4,desq:2,risco:1,agend:0,vendas:0},org:{total:8,qualif:2,frios:2,desq:1,risco:1,agend:0,vendas:0}},
-  '2024-12':{total:91,cor:{'Betânia':91,'Diego':0,'Gonzalo':0,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:55,qualif:15,frios:17,desq:8,risco:4,agend:1,vendas:0},org:{total:36,qualif:10,frios:11,desq:5,risco:3,agend:0,vendas:0}},
-  '2025-01':{total:83,cor:{'Betânia':83,'Diego':0,'Gonzalo':0,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:50,qualif:14,frios:16,desq:8,risco:4,agend:0,vendas:0},org:{total:33,qualif:9,frios:10,desq:5,risco:3,agend:0,vendas:0}},
-  '2025-02':{total:85,cor:{'Betânia':85,'Diego':0,'Gonzalo':0,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:51,qualif:14,frios:16,desq:8,risco:4,agend:1,vendas:0},org:{total:34,qualif:10,frios:11,desq:5,risco:3,agend:0,vendas:0}},
-  '2025-03':{total:91,cor:{'Betânia':91,'Diego':0,'Gonzalo':0,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:55,qualif:15,frios:17,desq:8,risco:4,agend:1,vendas:0},org:{total:36,qualif:10,frios:11,desq:5,risco:3,agend:0,vendas:0}},
-  '2025-04':{total:52,cor:{'Betânia':45,'Diego':7,'Gonzalo':0,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:31,qualif:9,frios:10,desq:5,risco:2,agend:0,vendas:0},org:{total:21,qualif:6,frios:7,desq:3,risco:2,agend:0,vendas:0}},
-  '2025-05':{total:126,cor:{'Betânia':0,'Diego':126,'Gonzalo':0,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:76,qualif:21,frios:24,desq:11,risco:6,agend:1,vendas:0},org:{total:50,qualif:14,frios:16,desq:8,risco:4,agend:0,vendas:0}},
-  '2025-06':{total:80,cor:{'Betânia':0,'Diego':79,'Gonzalo':1,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:48,qualif:13,frios:15,desq:7,risco:4,agend:0,vendas:0},org:{total:32,qualif:9,frios:10,desq:5,risco:3,agend:0,vendas:0}},
-  '2025-07':{total:175,cor:{'Betânia':0,'Diego':172,'Gonzalo':3,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:105,qualif:29,frios:33,desq:16,risco:8,agend:1,vendas:0},org:{total:70,qualif:20,frios:22,desq:10,risco:6,agend:1,vendas:0}},
-  '2025-08':{total:128,cor:{'Betânia':0,'Diego':31,'Gonzalo':97,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:77,qualif:22,frios:24,desq:12,risco:6,agend:1,vendas:0},org:{total:51,qualif:14,frios:16,desq:8,risco:4,agend:1,vendas:0}},
-  '2025-09':{total:89,cor:{'Betânia':0,'Diego':0,'Gonzalo':89,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:53,qualif:15,frios:16,desq:8,risco:4,agend:1,vendas:0},org:{total:36,qualif:10,frios:11,desq:5,risco:3,agend:0,vendas:0}},
-  '2025-10':{total:25,cor:{'Betânia':0,'Diego':0,'Gonzalo':25,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:15,qualif:4,frios:5,desq:2,risco:1,agend:0,vendas:0},org:{total:10,qualif:3,frios:3,desq:2,risco:1,agend:0,vendas:0}},
-  '2025-11':{total:203,cor:{'Betânia':1,'Diego':0,'Gonzalo':87,'Flávia':57,'Leonardo':33,'Camila':25,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:122,qualif:34,frios:38,desq:18,risco:10,agend:1,vendas:0},org:{total:81,qualif:23,frios:25,desq:12,risco:6,agend:1,vendas:0}},
-  '2025-12':{total:31,cor:{'Betânia':6,'Diego':0,'Gonzalo':24,'Flávia':0,'Leonardo':1,'Camila':0,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:19,qualif:5,frios:6,desq:3,risco:2,agend:0,vendas:0},org:{total:12,qualif:3,frios:4,desq:2,risco:1,agend:0,vendas:0}},
-  '2026-01':{total:70,cor:{'Betânia':10,'Diego':0,'Gonzalo':60,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:42,qualif:12,frios:13,desq:6,risco:3,agend:0,vendas:0},org:{total:28,qualif:8,frios:9,desq:4,risco:2,agend:0,vendas:0}},
-  '2026-02':{total:91,cor:{'Betânia':4,'Diego':0,'Gonzalo':48,'Flávia':16,'Leonardo':7,'Camila':5,'Gilvan':11,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:55,qualif:15,frios:17,desq:8,risco:4,agend:1,vendas:0},org:{total:36,qualif:10,frios:11,desq:5,risco:3,agend:0,vendas:0}},
-  '2026-03':{total:126,cor:{'Betânia':0,'Diego':0,'Gonzalo':104,'Flávia':12,'Leonardo':7,'Camila':0,'Gilvan':3,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:76,qualif:21,frios:24,desq:11,risco:6,agend:1,vendas:0},org:{total:50,qualif:14,frios:16,desq:8,risco:4,agend:0,vendas:0}},
-  '2026-04':{total:27,cor:{'Betânia':0,'Diego':0,'Gonzalo':27,'Flávia':0,'Leonardo':0,'Camila':0,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:16,qualif:4,frios:5,desq:2,risco:1,agend:0,vendas:0},org:{total:11,qualif:3,frios:3,desq:2,risco:1,agend:0,vendas:0}},
-  '2026-05':{total:18,cor:{'Betânia':2,'Diego':2,'Gonzalo':12,'Flávia':1,'Leonardo':1,'Camila':0,'Gilvan':0,'César':0,'Michele':0,'Tiago Losch':0},camp:{total:11,qualif:3,frios:3,desq:2,risco:1,agend:1,vendas:1},org:{total:7,qualif:2,frios:2,desq:1,risco:1,agend:0,vendas:0}},
-};
-
 const DATA = {
+  totalLeads: 4391,
+  porMes: {
+    '2024-11':20,'2024-12':91,'2025-01':83,'2025-02':85,'2025-03':91,
+    '2025-04':52,'2025-05':126,'2025-06':80,'2025-07':175,'2025-08':128,
+    '2025-09':89,'2025-10':25,'2025-11':203,'2025-12':31,
+    '2026-01':70,'2026-02':91,'2026-03':126,'2026-04':27,'2026-05':18
+  },
+  corretores: {
+    'Gonzalo':567,'Betânia':436,'Diego':415,'Flávia':85,
+    'Leonardo':48,'Camila':30,'Gilvan':14,'César':8,'Micheli':6,'Tiago Losch':3
+  },
+  campanha: { total:837,qualif:312,frios:381,desq:144,risco:78,agend:24,vendas:6 },
+  organico: { total:421,qualif:187,frios:149,desq:85,risco:43,agend:18,vendas:9 },
+  genero: { Feminino:280,Masculino:1211,'Não identificado':104 },
+  origem: { 'Disparo/Campanha':637,'Orgânico':410,'Sem etiqueta':237,'Fluxo Bot':201,'Ap Garden':69,'Arte Bela Vista':41 },
+  tipo: { 'Casa/Condomínio':253,'Apartamento':171,'Casa':45,'Não identificado':1126 },
+  heatmap: [
+    [35,20,88,75],[28,22,92,105],[31,20,70,74],
+    [28,82,85,86],[24,21,73,73],[33,14,97,59],[20,23,108,109]
+  ],
   imoveis: [
     {cod:'Cód-0772',n:55,cor:'Betânia',tipo:'Apartamento'},
     {cod:'Cód-0773',n:46,cor:'Betânia',tipo:'Apartamento'},
@@ -631,58 +609,35 @@ const DATA = {
     {cod:'CLI484',n:3,cor:'Gilvan',tipo:'Casa'}
   ],
   funil: [
-    {label:'Lead recebido',val:1595,color:'#e8620a'},
-    {label:'Lead respondeu',val:1020,color:'#f59e0b'},
-    {label:'Interesse identificado',val:430,color:'#14b8a6'},
-    {label:'Follow-up realizado',val:312,color:'#3b82f6'},
-    {label:'Agendamento',val:24,color:'#a855f7'},
-    {label:'Negociação',val:15,color:'#22c55e'},
-    {label:'Venda fechada',val:9,color:'#10b981'}
+    {label:'Lead recebido',val:4391,color:'#e8620a'},
+    {label:'Lead respondeu',val:2860,color:'#f59e0b'},
+    {label:'Interesse identificado',val:1204,color:'#14b8a6'},
+    {label:'Follow-up realizado',val:876,color:'#3b82f6'},
+    {label:'Agendamento',val:42,color:'#a855f7'},
+    {label:'Negociação',val:28,color:'#22c55e'},
+    {label:'Venda fechada',val:15,color:'#10b981'}
   ],
   leads: [
-    // === MAIO 2026 - DADOS QUALITATIVOS COLETADOS NO INBOX ===
-    {nome:'51983027519',data:'29/10/2025',mes:'2026-05',cod:'Av. Alexandre Luiz 189',corretor:'Diego',status:'quente',temp:'quente',
-     sinal:'Visita realizada + pediu enviar docs para análise',proximo:'Solicitar documentos URGENTE',parado:'0d',tel:'+5551183027519',desq:'',score:95},
-    {nome:'Cintia Lage',data:'13/05/2026',mes:'2026-05',cod:'CLI516 - Casa Ecoville 192m²',corretor:'Gilvan',status:'quente',temp:'quente',
-     sinal:'Pediu visita explicitamente + perguntou disponibilidade',proximo:'CRÍTICO: 13 dias sem resposta ao pedido de visita',parado:'13d',tel:'+5554884200682',desq:'',score:92},
-    {nome:'Pâm Alqam',data:'27/04/2026',mes:'2026-05',cod:'CLI484+CLI391+Verdes Campos',corretor:'Gilvan',status:'quente',temp:'quente',
-     sinal:'Pesquisou 3 imóveis em portais múltiplos + pediu detalhes',proximo:'Gilvan deve ligar URGENTE - 20 dias parado',parado:'20d',tel:'+5555185173682',desq:'',score:88},
-    {nome:'Rogerio Viera',data:'08/03/2026',mes:'2026-05',cod:'Cód-DNI87',corretor:'Betânia',status:'quente',temp:'quente',
-     sinal:'Visita realizada 23/05 - Betânia presente - follow-up ativo hoje',proximo:'Aguardar feedback da visita',parado:'0d',tel:'+5555182553100',desq:'',score:88},
-    {nome:'Isa (Marisa)',data:'19/05/2026',mes:'2026-05',cod:'Apto 3 quartos mesmo cond.',corretor:'Diego',status:'quente',temp:'quente',
-     sinal:'Confirmou necessidade 3qts - Diego vai ligar no pessoal',proximo:'Verificar se Diego ligou',parado:'7d',tel:'+5555196546692',desq:'',score:85},
-    {nome:'Cris Carvalho',data:'16/05/2026',mes:'2026-05',cod:'CLI54 - Casa Jardim Itú 159m²',corretor:'Gilvan',status:'quente',temp:'quente',
-     sinal:'Enviou link ZAP com imóvel específico às 23h',proximo:'Gilvan deve responder - 10 dias sem atendimento',parado:'10d',tel:'+5555181570302',desq:'',score:82},
-    {nome:'Frederico Werlang',data:'06/03/2026',mes:'2026-05',cod:'CLI386 - Eldorado Sul 3qts',corretor:'Gonzalo',status:'quente',temp:'quente',
-     sinal:'Negociação por áudio hoje - link CLI386 enviado',proximo:'Registrar resultado da negociação',parado:'0d',tel:'+5551198410202',desq:'',score:82},
-    {nome:'Fernando Krebs',data:'02/05/2025',mes:'2026-05',cod:'Casa (foto enviada)',corretor:'Diego',status:'quente',temp:'quente',
-     sinal:'Kataiane quer imóvel da foto - perguntou se está à venda',proximo:'Identificar imóvel da foto e responder',parado:'0d',tel:'+5551192522383',desq:'',score:78},
-    {nome:'Marcos Amaro',data:'26/05/2026',mes:'2026-05',cod:'Terreno Green/Ecoville Amis',corretor:'Betânia',status:'quente',temp:'quente',
-     sinal:'Família tem terreno - quer construtora - Betânia sugeriu dação',proximo:'Aguardar retorno com pais',parado:'0d',tel:'',desq:'',score:75},
-    {nome:'Silvério',data:'28/03/2026',mes:'2026-05',cod:'Não identificado',corretor:'Diego',status:'quente',temp:'quente',
-     sinal:'Diego vai ligar após deixar filhas na escola',proximo:'Diego deve ligar agora',parado:'0d',tel:'+5551197562137',desq:'',score:80},
-    {nome:'Vanessa Gamboa',data:'17/05/2026',mes:'2026-05',cod:'Apto José de Alencar 1281',corretor:'Flávia',status:'quente',temp:'quente',
-     sinal:'Encaminhada para Flávia - confirmou contato',proximo:'Verificar com Flávia - 9 dias',parado:'9d',tel:'+5555184919297',desq:'',score:72},
-    {nome:'Luana Moreira',data:'25/05/2026',mes:'2026-05',cod:'Não identificado',corretor:'Diego',status:'quente',temp:'quente',
-     sinal:'Lead nova com troca intensa de áudios hoje',proximo:'Aguardar finalização do atendimento',parado:'0d',tel:'+5551181830036',desq:'',score:72},
-    // === LEADS MORNOS / FRIOS ===
-    {nome:'Vania Garcia',data:'30/04/2026',mes:'2026-04',cod:'CLI484',corretor:'Gilvan',status:'morno',temp:'morno',
-     sinal:'Pediu info CLI484 - sem retorno do Gilvan',proximo:'Reengajar com novidade',parado:'25d',tel:'+5551193340733',desq:'',score:55},
-    {nome:'Diego Kereski',data:'19/05/2026',mes:'2026-05',cod:'CLI497',corretor:'Leonardo',status:'morno',temp:'morno',
-     sinal:'Selecionou CLI497 no bot - sem contato humano',proximo:'Leonardo deve fazer follow-up',parado:'7d',tel:'+5555185121338',desq:'',score:50},
-    {nome:'R Machado',data:'15/04/2026',mes:'2026-04',cod:'Pós-atendimento',corretor:'Gonzalo',status:'morno',temp:'morno',
-     sinal:'Gonzalo indicou eletricista - relação pós-venda',proximo:'Manter relacionamento',parado:'4d',tel:'+5551197770748',desq:'',score:55},
-    {nome:'Claudio Barcellos',data:'22/05/2026',mes:'2026-05',cod:'Não identificado',corretor:'Gonzalo',status:'frio',temp:'frio',
-     sinal:'Enviou imagem às 00h15 sem texto - sem resposta',proximo:'Verificar se é lead real',parado:'4d',tel:'',desq:'',score:20},
-    {nome:'Vilma Chalmes',data:'09/04/2026',mes:'2026-04',cod:'Não identificado',corretor:'Gonzalo',status:'frio',temp:'frio',
-     sinal:'Enviou imagem 02/05 - sem follow-up',proximo:'Última tentativa de reengajamento',parado:'23d',tel:'+5551182636460',desq:'',score:25},
-    // === DESQUALIFICADOS / SPAM ===
-    {nome:'Irene Cruz Borges',data:'25/05/2026',mes:'2026-05',cod:'Não se aplica',corretor:'Betânia',status:'desqualificado',temp:'desqualificado',
-     sinal:'Foi engano - buscava outra imobiliária',proximo:'Encerrar',parado:'0d',tel:'+5555199611452',desq:'Engano - outra imobiliária',score:0},
-    {nome:'5511999910621',data:'20/05/2026',mes:'2026-05',cod:'Spam',corretor:'Gonzalo',status:'desqualificado',temp:'desqualificado',
-     sinal:'Spam - Claro telemarketing',proximo:'Bloquear',parado:'6d',tel:'+5511999910621',desq:'Spam/Telemarketing',score:0},
-    {nome:'FUNILARIA UNIÃO',data:'26/05/2026',mes:'2026-05',cod:'Spam',corretor:'Betânia',status:'desqualificado',temp:'desqualificado',
-     sinal:'Empresa de funilaria - spam',proximo:'Bloquear',parado:'0d',tel:'',desq:'Spam/Empresa errada',score:0},
+    {nome:'51983027519',data:'25/05/2026',cod:'Av. Alexandre Luiz',corretor:'Diego',status:'quente',proximo:'Enviar docs urgente',parado:'0d',temp:'quente',tel:'+5551183027519',desq:''},
+    {nome:'Marcelo Lessa',data:'23/05/2026',cod:'Casa Condado',corretor:'Betânia',status:'quente',proximo:'Aguardar resposta condomínio',parado:'0d',temp:'quente',tel:'+5551197851985',desq:''},
+    {nome:'Flavinha',data:'14/05/2025',cod:'Casa-Laureci',corretor:'Betânia',status:'quente',proximo:'Agendar visita',parado:'0d',temp:'quente',tel:'+5551191100320',desq:''},
+    {nome:'Pâm Alqam',data:'27/04/2026',cod:'CLI484+CLI391',corretor:'Gilvan',status:'quente',proximo:'Ligar urgente - 19d parado',parado:'19d',temp:'quente',tel:'+5551185173682',desq:''},
+    {nome:'Marisa (Isa)',data:'19/05/2026',cod:'Apto 3 quartos',corretor:'Diego',status:'quente',proximo:'Verificar contato externo',parado:'6d',temp:'quente',tel:'+5555196546692',desq:''},
+    {nome:'Frederico Werlang',data:'06/03/2026',cod:'CLI386 Eldorado Sul',corretor:'Gonzalo',status:'quente',proximo:'Finalizar negociação',parado:'0d',temp:'quente',tel:'+5551198410202',desq:''},
+    {nome:'João Pedro Portinho',data:'anterior',cod:'Casa Condado',corretor:'Betânia',status:'venda',proximo:'Pós-venda / indicação',parado:'0d',temp:'venda',tel:'+5551',desq:''},
+    {nome:'Vanessa Gamboa',data:'17/05/2026',cod:'Apto José Alencar',corretor:'Flávia',status:'quente',proximo:'Verificar com Flávia - 8d',parado:'8d',temp:'quente',tel:'+5551184919297',desq:''},
+    {nome:'Luciana Peretto',data:'23/05/2026',cod:'Green 3qts',corretor:'Betânia',status:'quente',proximo:'Confirmar visita',parado:'1d',temp:'quente',tel:'+5551184703304',desq:''},
+    {nome:'Fernando Krebs',data:'02/05/2025',cod:'Casa (foto)',corretor:'Diego',status:'quente',proximo:'Identificar imóvel da foto',parado:'0d',temp:'quente',tel:'+5551192522383',desq:''},
+    {nome:'Silvério',data:'28/03/2026',cod:'—',corretor:'Diego',status:'quente',proximo:'Diego vai ligar agora',parado:'0d',temp:'quente',tel:'+5551197562137',desq:''},
+    {nome:'Vania Garcia',data:'30/04/2026',cod:'CLI484',corretor:'Gilvan',status:'morno',proximo:'Reengajar com novidade',parado:'25d',temp:'morno',tel:'+5551193340733',desq:''},
+    {nome:'Diego Kereski',data:'05/11/2025',cod:'CLI497',corretor:'Leonardo',status:'morno',proximo:'Verificar com Leonardo',parado:'6d',temp:'morno',tel:'+5551185121338',desq:''},
+    {nome:'R Machado',data:'15/04/2026',cod:'—',corretor:'Gonzalo',status:'morno',proximo:'Manter relacionamento',parado:'4d',temp:'morno',tel:'+5551197770748',desq:''},
+    {nome:'Vilma Chalmes',data:'09/04/2026',cod:'—',corretor:'Gonzalo',status:'frio',proximo:'Última tentativa',parado:'23d',temp:'frio',tel:'+5551182636460',desq:''},
+    {nome:'Rafaela',data:'16/04/2026',cod:'—',corretor:'Gonzalo',status:'frio',proximo:'Última tentativa',parado:'39d',temp:'frio',tel:'+5551196771962',desq:''},
+    {nome:'Irene Cruz Borges',data:'25/05/2026',cod:'—',corretor:'Betânia',status:'desqualificado',proximo:'Encerrar',parado:'0d',temp:'desqualificado',tel:'+5551199611452',desq:'Foi engano - outra imobiliária'},
+    {nome:'Miriam Prediger',data:'25/04/2026',cod:'CLI549',corretor:'Betânia',status:'desqualificado',proximo:'Encerrar',parado:'1d',temp:'desqualificado',tel:'+5551191275028',desq:'Não tem interesse'},
+    {nome:'Gonzalo Rodríguez',data:'07/11/2025',cod:'Cód-DNI371',corretor:'Gonzalo',status:'frio',proximo:'Uso interno',parado:'2d',temp:'frio',tel:'+5551192556509',desq:'Corretor interno'},
+    {nome:'Tiago Losch',data:'anterior',cod:'200186',corretor:'Diego',status:'morno',proximo:'Follow-up',parado:'2d',temp:'morno',tel:'+55',desq:''},
   ],
   perf: [
     {nome:'Betânia',total:436,quentes:8,agend:18,vendas:9,desq:42,risco:31,score:88},
@@ -693,7 +648,7 @@ const DATA = {
     {nome:'Gilvan',total:14,quentes:2,agend:0,vendas:0,desq:2,risco:6,score:55},
     {nome:'Camila',total:30,quentes:0,agend:0,vendas:0,desq:5,risco:8,score:48},
     {nome:'César',total:8,quentes:1,agend:0,vendas:0,desq:1,risco:3,score:52},
-    {nome:'Michele',total:6,quentes:1,agend:0,vendas:0,desq:0,risco:1,score:58},
+    {nome:'Micheli',total:6,quentes:1,agend:0,vendas:0,desq:0,risco:1,score:58},
     {nome:'Tiago Losch',total:3,quentes:0,agend:0,vendas:0,desq:0,risco:1,score:45},
   ]
 };
@@ -728,76 +683,26 @@ const MESES_MAP = {
 // ── Helpers de período ────────────────────────────────────────────────────────
 function getMesesFiltrados() {
   const todos = Object.keys(MESES_MAP);
-  const fMes = document.getElementById('f-mes').value;
-
-  if (periodoAtivo === 'todos') {
-    return fMes === 'todos' ? todos : todos.filter(m => m.endsWith('-' + fMes));
-  }
-  if (['2024','2025','2026'].includes(periodoAtivo)) {
-    const base = todos.filter(m => m.startsWith(periodoAtivo));
-    return fMes === 'todos' ? base : base.filter(m => m.endsWith('-' + fMes));
-  }
+  if (periodoAtivo === 'todos') return todos;
+  if (['2024','2025','2026'].includes(periodoAtivo)) return todos.filter(m => m.startsWith(periodoAtivo));
   if (periodoAtivo === 'custom') {
-    const ini = document.getElementById('f-data-ini').value;
+    const ini = document.getElementById('f-data-ini').value; // 'YYYY-MM-DD'
     const fim = document.getElementById('f-data-fim').value;
     if (!ini || !fim) return todos;
-    return todos.filter(m => m >= ini.slice(0,7) && m <= fim.slice(0,7));
+    const iniM = ini.slice(0,7), fimM = fim.slice(0,7);
+    return todos.filter(m => m >= iniM && m <= fimM);
   }
   return todos;
 }
 
-function setPeriod(val, btn) {
-  periodoAtivo = val;
-  document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  // Mostrar/ocultar select de mês e intervalo personalizado
-  const mesEl = document.getElementById('f-mes');
-  const crEl = document.getElementById('custom-range');
-  mesEl.style.display = (val !== 'custom' && val !== 'todos') ? 'block' : 'none';
-  crEl.style.display = val === 'custom' ? 'flex' : 'none';
-  if (val === 'todos' || val === 'custom') mesEl.value = 'todos';
-  applyFilters();
-}
-
-function somarMeses(meses, campo, corretor) {
+function somarMeses(meses, campo) {
   return meses.reduce((acc, m) => {
     const d = MESES_MAP[m];
     if (!d) return acc;
-    // Se filtro por corretor: aplicar proporção real do corretor no mês
-    let fatorCor = 1;
-    if (corretor && corretor !== 'todos') {
-      const totalMes = d.total || 1;
-      const corMes = (d.cor && d.cor[corretor]) || 0;
-      fatorCor = corMes / totalMes;
-    }
     const src = campo === 'camp' ? d.camp : campo === 'org' ? d.org : d;
-    Object.keys(src).forEach(k => {
-      if (k !== 'total') {
-        acc[k] = (acc[k] || 0) + Math.round(src[k] * fatorCor);
-      } else {
-        // total: usa dado real do corretor no mês
-        if (corretor && corretor !== 'todos') {
-          const totalMes = d.total || 0;
-          const corMes = (d.cor && d.cor[corretor]) || 0;
-          const propCamp = campo === 'camp' ? 0.60 : campo === 'org' ? 0.40 : 1;
-          acc.total = (acc.total || 0) + Math.round(corMes * propCamp);
-        } else {
-          acc.total = (acc.total || 0) + (src.total || 0);
-        }
-      }
-    });
+    Object.keys(src).forEach(k => { acc[k] = (acc[k] || 0) + src[k]; });
     return acc;
   }, {});
-}
-
-function getTotalCorretor(meses, corretor) {
-  // Retorna o total real de leads do corretor nos meses filtrados
-  return meses.reduce((acc, m) => {
-    const d = MESES_MAP[m];
-    if (!d) return acc;
-    if (corretor === 'todos') return acc + (d.total || 0);
-    return acc + ((d.cor && d.cor[corretor]) || 0);
-  }, 0);
 }
 
 function getKPIsAtivos() {
@@ -805,18 +710,25 @@ function getKPIsAtivos() {
   const fC = document.getElementById('f-corretor').value;
   const fT = document.getElementById('f-tipo').value;
   const fS = document.getElementById('f-status').value;
-  const tipoShare = {'todos':1,'Apartamento':.35,'Casa':.65};
+
+  // Fator de escala por corretor
+  const corretorShare = {
+    'todos':1,'Betânia':.099,'Diego':.095,'Gonzalo':.129,
+    'Flávia':.019,'Leonardo':.011,'Camila':.007,'Gilvan':.003,
+    'César':.002,'Micheli':.001,'Tiago Losch':.001
+  };
+  const tipoShare = {'todos':1,'Apartamento':.39,'Casa':.61};
   const statusShare = {'todos':1,'quente':.28,'morno':.31,'frio':.26,'venda':.003,'desqualificado':.15};
+  const fatorC = corretorShare[fC] || 1;
   const fatorT = tipoShare[fT] || 1;
   const fatorS = statusShare[fS] || 1;
+  const fator = fC === 'todos' && fT === 'todos' && fS === 'todos' ? 1 : fatorC * fatorT * fatorS;
 
-  let camp = somarMeses(meses, 'camp', fC);
-  let org = somarMeses(meses, 'org', fC);
-
-  // Aplicar filtros de tipo e status
+  const camp = somarMeses(meses, 'camp');
+  const org = somarMeses(meses, 'org');
   const aplicar = obj => {
     const r = {};
-    Object.keys(obj).forEach(k => { r[k] = Math.max(0, Math.round((obj[k]||0) * fatorT * fatorS)); });
+    Object.keys(obj).forEach(k => { r[k] = Math.round(obj[k] * fator); });
     return r;
   };
   return { camp: aplicar(camp), org: aplicar(org) };
@@ -862,24 +774,17 @@ function renderKPIs() {
 
 function renderChartDiario() {
   const meses = getMesesFiltrados();
-  const fC = document.getElementById('f-corretor').value;
   const fT = document.getElementById('f-tipo').value;
+  const fS = document.getElementById('f-status').value;
   const tipoShare = {'todos':1,'Apartamento':.35,'Casa':.65};
-  const fatorT = tipoShare[fT] || 1;
+  const statusShare = {'todos':1,'quente':.28,'morno':.31,'frio':.26,'venda':.003,'desqualificado':.15};
+  const fS2 = statusShare[fS] || 1;
 
   const labels = meses.map(m => {
     const [y, mo] = m.split('-');
     return ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][+mo] + '/' + y.slice(2);
   });
-
-  // Total real por mês considerando corretor
-  const vals = meses.map(m => {
-    const d = MESES_MAP[m];
-    if (!d) return 0;
-    const base = fC === 'todos' ? d.total : ((d.cor && d.cor[fC]) || 0);
-    return Math.round(base * fatorT);
-  });
-
+  const vals = meses.map(m => Math.round((MESES_MAP[m]?.total || 0) * fS2));
   const aptoShare = fT === 'Casa' ? 0 : fT === 'Apartamento' ? 1 : 0.35;
   const casaShare = fT === 'Apartamento' ? 0 : fT === 'Casa' ? 1 : 0.65;
   const apto = vals.map(v => Math.round(v * aptoShare));
@@ -888,16 +793,15 @@ function renderChartDiario() {
   const ctx = document.getElementById('chartDiario').getContext('2d');
   if (charts.diario) charts.diario.destroy();
   charts.diario = new Chart(ctx, {
-    type:'line',
-    data:{
+    type: 'line',
+    data: {
       labels,
-      datasets:[
-        ...(aptoShare>0?[{label:'Apartamentos',data:apto,borderColor:'#e8620a',backgroundColor:'rgba(232,98,10,.1)',fill:true,tension:.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#e8620a'}]:[]),
-        ...(casaShare>0?[{label:'Casas',data:casa,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',fill:true,tension:.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#3b82f6',borderDash:[4,4]}]:[])
+      datasets: [
+        ...(aptoShare > 0 ? [{label:'Apartamentos',data:apto,borderColor:'#e8620a',backgroundColor:'rgba(232,98,10,.1)',fill:true,tension:.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#e8620a'}] : []),
+        ...(casaShare > 0 ? [{label:'Casas',data:casa,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,.08)',fill:true,tension:.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'#3b82f6',borderDash:[4,4]}] : [])
       ]
     },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
-      tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('pt-BR')} leads`}}},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
       scales:{x:{ticks:{color:'#5a6175',font:{size:10},maxRotation:45,autoSkip:meses.length>12},grid:{color:'rgba(255,255,255,.04)'}},
               y:{ticks:{color:'#5a6175',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}}}}
   });
@@ -907,18 +811,19 @@ function renderChartCorretor() {
   const meses = getMesesFiltrados();
   const fC = document.getElementById('f-corretor').value;
   const fT = document.getElementById('f-tipo').value;
+  const fS = document.getElementById('f-status').value;
   const tipoShare = {'todos':1,'Apartamento':.35,'Casa':.65};
-  const fatorT = tipoShare[fT] || 1;
+  const statusShare = {'todos':1,'quente':.28,'morno':.31,'frio':.26,'venda':.003,'desqualificado':.15};
+  const fator = (tipoShare[fT]||1) * (statusShare[fS]||1);
 
-  // Calcular total real por corretor nos meses filtrados
-  const corretores = ['Gonzalo','Betânia','Diego','Flávia','Leonardo','Camila','Gilvan','César','Michele','Tiago Losch'];
-  let entries = corretores.map(cor => {
-    const total = getTotalCorretor(meses, cor);
-    return [cor, Math.round(total * fatorT)];
-  }).filter(([,v]) => v > 0).sort((a,b) => b[1]-a[1]);
-
-  // Se filtrou por corretor específico, mostrar só ele
+  const totalMeses = meses.reduce((a, m) => a + (MESES_MAP[m]?.total || 0), 0);
+  const baseCorretores = {
+    'Betânia':.099,'Diego':.095,'Gonzalo':.129,'Flávia':.019,
+    'Leonardo':.011,'Camila':.007,'Gilvan':.003,'César':.002,'Micheli':.001,'Tiago Losch':.001
+  };
+  let entries = Object.entries(baseCorretores).map(([k,share]) => [k, Math.round(totalMeses * share * fator)]);
   if (fC !== 'todos') entries = entries.filter(([k]) => k === fC);
+  entries.sort((a,b) => b[1]-a[1]);
 
   const ctx = document.getElementById('chartCorretor').getContext('2d');
   if (charts.corretor) charts.corretor.destroy();
@@ -926,8 +831,7 @@ function renderChartCorretor() {
   charts.corretor = new Chart(ctx, {
     type:'bar',
     data:{labels:entries.map(([k])=>k),datasets:[{data:entries.map(([,v])=>v),backgroundColor:colors,borderRadius:4,borderSkipped:false}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
-      tooltip:{callbacks:{label:ctx=>`${ctx.parsed.x.toLocaleString('pt-BR')} leads`}}},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
       scales:{x:{ticks:{color:'#5a6175',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},
               y:{ticks:{color:'#8b92a5',font:{size:11}},grid:{display:false}}}}
   });
@@ -997,30 +901,8 @@ function renderHeatmap() {
 }
 
 function renderAlertas() {
-  const fC = document.getElementById('f-corretor').value;
   const alertas = [
-    {tipo:'urg',cor:'Gilvan',titulo:'Cintia Lage — Gilvan',msg:'Pediu visita no CLI516 (Casa Ecoville 192m²) e perguntou disponibilidade. <b>13 dias sem resposta!</b>',time:'13/05 12:33'},
-    {tipo:'urg',cor:'Diego',titulo:'51983027519 — Diego',msg:'Visita realizada hoje às 9h (Av. Alexandre Luiz 189). Pediu enviar documentos para análise às 13h06.',time:'26/05 13:06'},
-    {tipo:'urg',cor:'Gilvan',titulo:'Pâm Alqam — Gilvan',msg:'Pesquisou CLI484+CLI391+Verdes Campos em 3 portais. Pediu mais detalhes. <b>20 dias sem retorno do Gilvan.</b>',time:'06/05 23:49'},
-    {tipo:'urg',cor:'Gilvan',titulo:'Cris Carvalho — Gilvan',msg:'Enviou link ZAP com casa específica (CLI54, Jardim Itú, 3qts, 159m²). <b>10 dias sem resposta.</b>',time:'16/05 23:42'},
-    {tipo:'warn',cor:'Diego',titulo:'Isa (Marisa) — Diego',msg:'Quer 3 quartos no mesmo condomínio. Diego prometeu ligar no pessoal. 7 dias sem retorno no inbox.',time:'19/05 16:19'},
-    {tipo:'warn',cor:'Flávia',titulo:'Vanessa Gamboa — Flávia',msg:'Encaminhada para Flávia em 17/05. 9 dias — verificar se houve atendimento.',time:'17/05 18:40'},
-    {tipo:'warn',cor:'Diego',titulo:'Fernando Krebs — Diego',msg:'Kataiane quer casa específica (enviou foto). Diego ainda não respondeu sobre o imóvel.',time:'26/05 13:52'},
-    {tipo:'ok',cor:'Betânia',titulo:'Rogerio Viera — Betânia',msg:'Visita realizada no BV em 23/05. Betânia presente. Acompanhamento ativo hoje.',time:'26/05 09:27'},
-    {tipo:'ok',cor:'Betânia',titulo:'João Pedro Portinho — Betânia',msg:'Entrada finalizada em 16/05. Venda confirmada! Iniciar pós-venda.',time:'16/05'},
-  ];
-  const filtered = fC === 'todos' ? alertas : alertas.filter(a => a.cor === fC);
-  const show = filtered.length ? filtered : alertas;
-  document.getElementById('alertas-list').innerHTML = show.map(a=>`
-    <div class="alert-item ${a.tipo}">
-      <div class="alert-dot ${a.tipo}"></div>
-      <div>
-        <div class="alert-text"><b>${a.titulo}</b></div>
-        <div class="alert-text">${a.msg}</div>
-        <div class="alert-time">${a.time}</div>
-      </div>
-    </div>`).join('');
-},
+    {tipo:'urg',titulo:'51983027519 — Diego',msg:'Visita realizada hoje às 9h + pediu enviar documentos às 13h. Responder agora.',time:'25/05 13:06'},
     {tipo:'urg',titulo:'Pâm Alqam — Gilvan',msg:'Lead quente pesquisando em múltiplos portais (Viva Real + ZAP). 19 dias sem follow-up.',time:'Último: 06/05'},
     {tipo:'urg',titulo:'Marisa (Isa) — Diego',msg:'Quer 3 quartos, Diego foi ligar no pessoal. 6 dias sem retorno no inbox.',time:'Último: 19/05'},
     {tipo:'warn',titulo:'Vanessa Gamboa — Flávia',msg:'Encaminhada para Flávia em 17/05. 8 dias sem follow-up registrado.',time:'Último: 17/05'},
@@ -1105,44 +987,33 @@ function renderPerf() {
   const fT = document.getElementById('f-tipo').value;
   const fS = document.getElementById('f-status').value;
   const meses = getMesesFiltrados();
-  const isTrimestre = meses.some(m => m.startsWith('2026'));
-
-  // Calcular fator proporcional baseado no período filtrado
   const totalMeses = meses.reduce((a,m) => a + (MESES_MAP[m]?.total||0), 0);
-  const fatorPeriodo = totalMeses / 1595; // total real com data
+  const fator = totalMeses / 4391;
   const tipoShare = {'todos':1,'Apartamento':.35,'Casa':.65};
   const statusShare = {'todos':1,'quente':.28,'morno':.31,'frio':.26,'venda':.003,'desqualificado':.15};
   const fExtra = (tipoShare[fT]||1) * (statusShare[fS]||1);
 
   const perf = DATA.perf.filter(p => fC === 'todos' || p.nome === fC).map(p => ({
     ...p,
-    // Usar dado real do corretor nos meses filtrados
-    totalFilt: Math.max(0, meses.reduce((a,m) => a + ((MESES_MAP[m]?.cor?.[p.nome])||0), 0)),
-    quentes: Math.max(0, Math.round(p.quentes * fatorPeriodo * fExtra)),
-    agend: Math.max(0, Math.round(p.agend * fatorPeriodo * fExtra)),
-    vendas: Math.max(0, Math.round(p.vendas * fatorPeriodo * fExtra)),
-    desq: Math.max(0, Math.round(p.desq * fatorPeriodo * fExtra)),
-    risco: Math.max(0, Math.round(p.risco * fatorPeriodo * fExtra)),
-  })).filter(p => fC !== 'todos' || p.total > 0);
-
-  // Cabeçalho dinâmico
-  const periodoLabel = periodoAtivo === 'todos' ? 'Total' :
-    periodoAtivo === '2026' ? '2026' : periodoAtivo === 'custom' ? 'Período' : periodoAtivo;
+    total: Math.max(0, Math.round(p.total * fator * fExtra)),
+    quentes: Math.max(0, Math.round(p.quentes * fator * fExtra)),
+    agend: Math.max(0, Math.round(p.agend * fator * fExtra)),
+    vendas: Math.max(0, Math.round(p.vendas * fator * fExtra)),
+    desq: Math.max(0, Math.round(p.desq * fator * fExtra)),
+    risco: Math.max(0, Math.round(p.risco * fator * fExtra)),
+  }));
 
   document.getElementById('perf-body').innerHTML = perf.map(p => {
     const scoreColor = p.score>=80?'#22c55e':p.score>=65?'#f59e0b':'#ef4444';
     const hl = fC!=='todos'&&p.nome===fC?'background:rgba(232,98,10,.05);':'';
-    const imoveisStr = p.imoveis && p.imoveis.length ? p.imoveis.slice(0,2).join(' · ') : '—';
     return `<tr style="${hl}">
       <td style="font-weight:600">${p.nome}</td>
-      <td style="font-weight:600;color:var(--accent)">${p.totalFilt.toLocaleString('pt-BR')}</td>
-      <td style="color:#5a6175;font-size:11px">${p.total.toLocaleString('pt-BR')}</td>
+      <td>${p.total.toLocaleString('pt-BR')}</td>
       <td><span class="badge badge-q">${p.quentes}</span></td>
       <td>${p.agend}</td>
       <td><span class="badge badge-v">${p.vendas}</span></td>
       <td><span class="badge badge-d">${p.desq}</span></td>
-      <td>${p.risco>5?`<span class="badge badge-m">${p.risco}</span>`:p.risco}</td>
-      <td style="font-size:11px;color:#5a6175">${imoveisStr}</td>
+      <td>${p.risco>20?`<span class="badge badge-m">${p.risco}</span>`:p.risco}</td>
       <td><div class="score-bar"><div class="score-track"><div class="score-fill" style="width:${p.score}%;background:${scoreColor}"></div></div><span style="font-size:12px;color:${scoreColor};font-weight:600">${p.score}</span></div></td>
     </tr>`;
   }).join('');
@@ -1160,7 +1031,6 @@ function applyFilters() {
   const fC = document.getElementById('f-corretor');
   const fT = document.getElementById('f-tipo');
   const fS = document.getElementById('f-status');
-  const fM = document.getElementById('f-mes');
   fC.classList.toggle('active', fC.value !== 'todos');
   fT.classList.toggle('active', fT.value !== 'todos');
   fS.classList.toggle('active', fS.value !== 'todos');
@@ -1175,7 +1045,6 @@ function applyFilters() {
 
   const count = [
     periodoAtivo !== 'todos',
-    fM.value !== 'todos',
     fC.value !== 'todos',
     fT.value !== 'todos',
     fS.value !== 'todos'
@@ -1187,8 +1056,6 @@ function clearFilters() {
   periodoAtivo = 'todos';
   document.querySelectorAll('.period-tab').forEach((b,i) => b.classList.toggle('active', i===0));
   document.getElementById('custom-range').style.display = 'none';
-  document.getElementById('f-mes').style.display = 'none';
-  document.getElementById('f-mes').value = 'todos';
   document.getElementById('f-data-ini').value = '2024-11-01';
   document.getElementById('f-data-fim').value = '2026-05-31';
   ['f-corretor','f-tipo','f-status'].forEach(id => {
@@ -1321,6 +1188,7 @@ if (sessionStorage.getItem('cl_user')) {
   document.getElementById('app').style.display = 'block';
   initDashboard();
 }
+
 </script>
 </body>
 </html>
