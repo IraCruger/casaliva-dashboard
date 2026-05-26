@@ -521,19 +521,17 @@ function doLogin() {
   const email = emailEl.value.trim().toLowerCase();
   const pass = passEl.value.trim();
 
-  // Aceita e-mail completo, @nome (ex: "@gonzalo"), nome simples ou apelido
-  const emailNorm = email.startsWith('@') ? email.slice(1) : email;
-  // aliases para nomes com variações de grafia
-  const aliases = { 'michele': 'micheli', 'flavia': 'flávia', 'betania': 'betânia', 'cesar': 'césar' };
-  const emailAlias = aliases[emailNorm] || emailNorm;
+  // Aceita: @primeironome, primeironome, nome completo ou email completo
+  const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const raw = norm(email.startsWith('@') ? email.slice(1) : email);
   const user = USERS.find(u => {
-    const n = u.name.toLowerCase();
-    const matchId = u.email === emailNorm ||
-      u.email === emailAlias ||
-      u.email.split('@')[0] === emailNorm ||
-      u.email.split('@')[0] === emailAlias ||
-      n === emailNorm ||
-      n === emailAlias;
+    const prefix = norm(u.email.split('@')[0]);         // ex: "tiago", "gonzalo"
+    const firstName = norm(u.name.split(' ')[0]);       // ex: "tiago", "flávia" → "flavia"
+    const fullName = norm(u.name);                      // ex: "tiago losch"
+    const matchId = norm(u.email) === raw ||
+      prefix === raw ||
+      firstName === raw ||
+      fullName === raw;
     return matchId && u.password === pass;
   });
 
