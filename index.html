@@ -513,40 +513,43 @@ const USERS = [
 ];
 
 function doLogin() {
-  const emailEl = document.getElementById('login-email');
-  const passEl = document.getElementById('login-password');
-  const errEl = document.getElementById('login-error');
-  if (!emailEl || !passEl) return;
+  var inputEl = document.getElementById('login-email');
+  var passEl  = document.getElementById('login-password');
+  var errEl   = document.getElementById('login-error');
 
-  let input = emailEl.value.trim().toLowerCase();
-  const pass = passEl.value.trim();
+  var input = (inputEl.value || '').trim().toLowerCase();
+  var pass  = (passEl.value  || '').trim();
 
-  // Remove @ do início se houver
-  if (input.startsWith('@')) input = input.slice(1);
+  // Remove @ do inicio
+  if (input.charAt(0) === '@') input = input.substring(1);
+  // Se digitou email completo, pega so parte antes do @
+  var atPos = input.indexOf('@');
+  if (atPos > -1) input = input.substring(0, atPos);
+  // Remove acentos
+  input = input.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-  // Remove @casaliva.com.br se o usuário digitou email completo
-  if (input.includes('@')) input = input.split('@')[0];
+  var found = null;
+  for (var i = 0; i < USERS.length; i++) {
+    var u = USERS[i];
+    var uPrefix = u.email.split('@')[0].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    var uFirst = u.name.split(' ')[0].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if ((uPrefix === input || uFirst === input) && u.password === pass) {
+      found = u;
+      break;
+    }
+  }
 
-  // Remove acentos para comparação
-  const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const inputNorm = norm(input);
-
-  const user = USERS.find(u => {
-    const prefix = norm(u.email.split('@')[0]);     // gonzalo, betania, diego...
-    const firstName = norm(u.name.split(' ')[0]);   // Gonzalo→gonzalo, Tiago Losch→tiago
-    return (prefix === inputNorm || firstName === inputNorm) && u.password === pass;
-  });
-
-  if (user) {
-    if (errEl) errEl.style.display = 'none';
-    sessionStorage.setItem('cl_user', JSON.stringify(user));
+  if (found) {
+    errEl.style.display = 'none';
+    try { sessionStorage.setItem('cl_user', JSON.stringify(found)); } catch(e){}
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     initDashboard();
   } else {
-    if (errEl) errEl.style.display = 'block';
+    errEl.style.display = 'block';
   }
 }
+
 
 document.addEventListener('DOMContentLoaded', () => {
   const passEl = document.getElementById('login-password');
