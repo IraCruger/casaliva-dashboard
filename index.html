@@ -521,12 +521,19 @@ function doLogin() {
   const email = emailEl.value.trim().toLowerCase();
   const pass = passEl.value.trim();
 
-  // Aceita e-mail completo, @nome (ex: "@gonzalo") ou só o nome (ex: "gonzalo")
+  // Aceita e-mail completo, @nome (ex: "@gonzalo"), nome simples ou apelido
   const emailNorm = email.startsWith('@') ? email.slice(1) : email;
+  // aliases para nomes com variações de grafia
+  const aliases = { 'michele': 'micheli', 'flavia': 'flávia', 'betania': 'betânia', 'cesar': 'césar' };
+  const emailAlias = aliases[emailNorm] || emailNorm;
   const user = USERS.find(u => {
+    const n = u.name.toLowerCase();
     const matchId = u.email === emailNorm ||
+      u.email === emailAlias ||
       u.email.split('@')[0] === emailNorm ||
-      u.name.toLowerCase() === emailNorm;
+      u.email.split('@')[0] === emailAlias ||
+      n === emailNorm ||
+      n === emailAlias;
     return matchId && u.password === pass;
   });
 
