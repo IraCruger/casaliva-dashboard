@@ -612,26 +612,49 @@ const DATA = {
     {label:'Venda fechada',val:9,color:'#10b981'}
   ],
   leads: [
-    {nome:'51983027519',data:'25/05/2026',cod:'Av. Alexandre Luiz',corretor:'Diego',status:'quente',proximo:'Enviar docs urgente',parado:'0d',temp:'quente',tel:'+5551183027519',desq:''},
-    {nome:'Marcelo Lessa',data:'23/05/2026',cod:'Casa Condado',corretor:'Betânia',status:'quente',proximo:'Aguardar resposta condomínio',parado:'0d',temp:'quente',tel:'+5551197851985',desq:''},
-    {nome:'Flavinha',data:'14/05/2025',cod:'Casa-Laureci',corretor:'Betânia',status:'quente',proximo:'Agendar visita',parado:'0d',temp:'quente',tel:'+5551191100320',desq:''},
-    {nome:'Pâm Alqam',data:'27/04/2026',cod:'CLI484+CLI391',corretor:'Gilvan',status:'quente',proximo:'Ligar urgente - 19d parado',parado:'19d',temp:'quente',tel:'+5551185173682',desq:''},
-    {nome:'Marisa (Isa)',data:'19/05/2026',cod:'Apto 3 quartos',corretor:'Diego',status:'quente',proximo:'Verificar contato externo',parado:'6d',temp:'quente',tel:'+5555196546692',desq:''},
-    {nome:'Frederico Werlang',data:'06/03/2026',cod:'CLI386 Eldorado Sul',corretor:'Gonzalo',status:'quente',proximo:'Finalizar negociação',parado:'0d',temp:'quente',tel:'+5551198410202',desq:''},
-    {nome:'João Pedro Portinho',data:'anterior',cod:'Casa Condado',corretor:'Betânia',status:'venda',proximo:'Pós-venda / indicação',parado:'0d',temp:'venda',tel:'+5551',desq:''},
-    {nome:'Vanessa Gamboa',data:'17/05/2026',cod:'Apto José Alencar',corretor:'Flávia',status:'quente',proximo:'Verificar com Flávia - 8d',parado:'8d',temp:'quente',tel:'+5551184919297',desq:''},
-    {nome:'Luciana Peretto',data:'23/05/2026',cod:'Green 3qts',corretor:'Betânia',status:'quente',proximo:'Confirmar visita',parado:'1d',temp:'quente',tel:'+5551184703304',desq:''},
-    {nome:'Fernando Krebs',data:'02/05/2025',cod:'Casa (foto)',corretor:'Diego',status:'quente',proximo:'Identificar imóvel da foto',parado:'0d',temp:'quente',tel:'+5551192522383',desq:''},
-    {nome:'Silvério',data:'28/03/2026',cod:'—',corretor:'Diego',status:'quente',proximo:'Diego vai ligar agora',parado:'0d',temp:'quente',tel:'+5551197562137',desq:''},
-    {nome:'Vania Garcia',data:'30/04/2026',cod:'CLI484',corretor:'Gilvan',status:'morno',proximo:'Reengajar com novidade',parado:'25d',temp:'morno',tel:'+5551193340733',desq:''},
-    {nome:'Diego Kereski',data:'05/11/2025',cod:'CLI497',corretor:'Leonardo',status:'morno',proximo:'Verificar com Leonardo',parado:'6d',temp:'morno',tel:'+5551185121338',desq:''},
-    {nome:'R Machado',data:'15/04/2026',cod:'—',corretor:'Gonzalo',status:'morno',proximo:'Manter relacionamento',parado:'4d',temp:'morno',tel:'+5551197770748',desq:''},
-    {nome:'Vilma Chalmes',data:'09/04/2026',cod:'—',corretor:'Gonzalo',status:'frio',proximo:'Última tentativa',parado:'23d',temp:'frio',tel:'+5551182636460',desq:''},
-    {nome:'Rafaela',data:'16/04/2026',cod:'—',corretor:'Gonzalo',status:'frio',proximo:'Última tentativa',parado:'39d',temp:'frio',tel:'+5551196771962',desq:''},
-    {nome:'Irene Cruz Borges',data:'25/05/2026',cod:'—',corretor:'Betânia',status:'desqualificado',proximo:'Encerrar',parado:'0d',temp:'desqualificado',tel:'+5551199611452',desq:'Foi engano - outra imobiliária'},
-    {nome:'Miriam Prediger',data:'25/04/2026',cod:'CLI549',corretor:'Betânia',status:'desqualificado',proximo:'Encerrar',parado:'1d',temp:'desqualificado',tel:'+5551191275028',desq:'Não tem interesse'},
-    {nome:'Gonzalo Rodríguez',data:'07/11/2025',cod:'Cód-DNI371',corretor:'Gonzalo',status:'frio',proximo:'Uso interno',parado:'2d',temp:'frio',tel:'+5551192556509',desq:'Corretor interno'},
-    {nome:'Tiago Losch',data:'anterior',cod:'200186',corretor:'Diego',status:'morno',proximo:'Follow-up',parado:'2d',temp:'morno',tel:'+55',desq:''},
+    // === MAIO 2026 - DADOS QUALITATIVOS COLETADOS NO INBOX ===
+    {nome:'51983027519',data:'29/10/2025',mes:'2026-05',cod:'Av. Alexandre Luiz 189',corretor:'Diego',status:'quente',temp:'quente',
+     sinal:'Visita realizada + pediu enviar docs para análise',proximo:'Solicitar documentos URGENTE',parado:'0d',tel:'+5551183027519',desq:'',score:95},
+    {nome:'Cintia Lage',data:'13/05/2026',mes:'2026-05',cod:'CLI516 - Casa Ecoville 192m²',corretor:'Gilvan',status:'quente',temp:'quente',
+     sinal:'Pediu visita explicitamente + perguntou disponibilidade',proximo:'CRÍTICO: 13 dias sem resposta ao pedido de visita',parado:'13d',tel:'+5554884200682',desq:'',score:92},
+    {nome:'Pâm Alqam',data:'27/04/2026',mes:'2026-05',cod:'CLI484+CLI391+Verdes Campos',corretor:'Gilvan',status:'quente',temp:'quente',
+     sinal:'Pesquisou 3 imóveis em portais múltiplos + pediu detalhes',proximo:'Gilvan deve ligar URGENTE - 20 dias parado',parado:'20d',tel:'+5555185173682',desq:'',score:88},
+    {nome:'Rogerio Viera',data:'08/03/2026',mes:'2026-05',cod:'Cód-DNI87',corretor:'Betânia',status:'quente',temp:'quente',
+     sinal:'Visita realizada 23/05 - Betânia presente - follow-up ativo hoje',proximo:'Aguardar feedback da visita',parado:'0d',tel:'+5555182553100',desq:'',score:88},
+    {nome:'Isa (Marisa)',data:'19/05/2026',mes:'2026-05',cod:'Apto 3 quartos mesmo cond.',corretor:'Diego',status:'quente',temp:'quente',
+     sinal:'Confirmou necessidade 3qts - Diego vai ligar no pessoal',proximo:'Verificar se Diego ligou',parado:'7d',tel:'+5555196546692',desq:'',score:85},
+    {nome:'Cris Carvalho',data:'16/05/2026',mes:'2026-05',cod:'CLI54 - Casa Jardim Itú 159m²',corretor:'Gilvan',status:'quente',temp:'quente',
+     sinal:'Enviou link ZAP com imóvel específico às 23h',proximo:'Gilvan deve responder - 10 dias sem atendimento',parado:'10d',tel:'+5555181570302',desq:'',score:82},
+    {nome:'Frederico Werlang',data:'06/03/2026',mes:'2026-05',cod:'CLI386 - Eldorado Sul 3qts',corretor:'Gonzalo',status:'quente',temp:'quente',
+     sinal:'Negociação por áudio hoje - link CLI386 enviado',proximo:'Registrar resultado da negociação',parado:'0d',tel:'+5551198410202',desq:'',score:82},
+    {nome:'Fernando Krebs',data:'02/05/2025',mes:'2026-05',cod:'Casa (foto enviada)',corretor:'Diego',status:'quente',temp:'quente',
+     sinal:'Kataiane quer imóvel da foto - perguntou se está à venda',proximo:'Identificar imóvel da foto e responder',parado:'0d',tel:'+5551192522383',desq:'',score:78},
+    {nome:'Marcos Amaro',data:'26/05/2026',mes:'2026-05',cod:'Terreno Green/Ecoville Amis',corretor:'Betânia',status:'quente',temp:'quente',
+     sinal:'Família tem terreno - quer construtora - Betânia sugeriu dação',proximo:'Aguardar retorno com pais',parado:'0d',tel:'',desq:'',score:75},
+    {nome:'Silvério',data:'28/03/2026',mes:'2026-05',cod:'Não identificado',corretor:'Diego',status:'quente',temp:'quente',
+     sinal:'Diego vai ligar após deixar filhas na escola',proximo:'Diego deve ligar agora',parado:'0d',tel:'+5551197562137',desq:'',score:80},
+    {nome:'Vanessa Gamboa',data:'17/05/2026',mes:'2026-05',cod:'Apto José de Alencar 1281',corretor:'Flávia',status:'quente',temp:'quente',
+     sinal:'Encaminhada para Flávia - confirmou contato',proximo:'Verificar com Flávia - 9 dias',parado:'9d',tel:'+5555184919297',desq:'',score:72},
+    {nome:'Luana Moreira',data:'25/05/2026',mes:'2026-05',cod:'Não identificado',corretor:'Diego',status:'quente',temp:'quente',
+     sinal:'Lead nova com troca intensa de áudios hoje',proximo:'Aguardar finalização do atendimento',parado:'0d',tel:'+5551181830036',desq:'',score:72},
+    // === LEADS MORNOS / FRIOS ===
+    {nome:'Vania Garcia',data:'30/04/2026',mes:'2026-04',cod:'CLI484',corretor:'Gilvan',status:'morno',temp:'morno',
+     sinal:'Pediu info CLI484 - sem retorno do Gilvan',proximo:'Reengajar com novidade',parado:'25d',tel:'+5551193340733',desq:'',score:55},
+    {nome:'Diego Kereski',data:'19/05/2026',mes:'2026-05',cod:'CLI497',corretor:'Leonardo',status:'morno',temp:'morno',
+     sinal:'Selecionou CLI497 no bot - sem contato humano',proximo:'Leonardo deve fazer follow-up',parado:'7d',tel:'+5555185121338',desq:'',score:50},
+    {nome:'R Machado',data:'15/04/2026',mes:'2026-04',cod:'Pós-atendimento',corretor:'Gonzalo',status:'morno',temp:'morno',
+     sinal:'Gonzalo indicou eletricista - relação pós-venda',proximo:'Manter relacionamento',parado:'4d',tel:'+5551197770748',desq:'',score:55},
+    {nome:'Claudio Barcellos',data:'22/05/2026',mes:'2026-05',cod:'Não identificado',corretor:'Gonzalo',status:'frio',temp:'frio',
+     sinal:'Enviou imagem às 00h15 sem texto - sem resposta',proximo:'Verificar se é lead real',parado:'4d',tel:'',desq:'',score:20},
+    {nome:'Vilma Chalmes',data:'09/04/2026',mes:'2026-04',cod:'Não identificado',corretor:'Gonzalo',status:'frio',temp:'frio',
+     sinal:'Enviou imagem 02/05 - sem follow-up',proximo:'Última tentativa de reengajamento',parado:'23d',tel:'+5551182636460',desq:'',score:25},
+    // === DESQUALIFICADOS / SPAM ===
+    {nome:'Irene Cruz Borges',data:'25/05/2026',mes:'2026-05',cod:'Não se aplica',corretor:'Betânia',status:'desqualificado',temp:'desqualificado',
+     sinal:'Foi engano - buscava outra imobiliária',proximo:'Encerrar',parado:'0d',tel:'+5555199611452',desq:'Engano - outra imobiliária',score:0},
+    {nome:'5511999910621',data:'20/05/2026',mes:'2026-05',cod:'Spam',corretor:'Gonzalo',status:'desqualificado',temp:'desqualificado',
+     sinal:'Spam - Claro telemarketing',proximo:'Bloquear',parado:'6d',tel:'+5511999910621',desq:'Spam/Telemarketing',score:0},
+    {nome:'FUNILARIA UNIÃO',data:'26/05/2026',mes:'2026-05',cod:'Spam',corretor:'Betânia',status:'desqualificado',temp:'desqualificado',
+     sinal:'Empresa de funilaria - spam',proximo:'Bloquear',parado:'0d',tel:'',desq:'Spam/Empresa errada',score:0},
   ],
   perf: [
     {nome:'Betânia',total:436,quentes:8,agend:18,vendas:9,desq:42,risco:31,score:88},
@@ -946,8 +969,30 @@ function renderHeatmap() {
 }
 
 function renderAlertas() {
+  const fC = document.getElementById('f-corretor').value;
   const alertas = [
-    {tipo:'urg',titulo:'51983027519 — Diego',msg:'Visita realizada hoje às 9h + pediu enviar documentos às 13h. Responder agora.',time:'25/05 13:06'},
+    {tipo:'urg',cor:'Gilvan',titulo:'Cintia Lage — Gilvan',msg:'Pediu visita no CLI516 (Casa Ecoville 192m²) e perguntou disponibilidade. <b>13 dias sem resposta!</b>',time:'13/05 12:33'},
+    {tipo:'urg',cor:'Diego',titulo:'51983027519 — Diego',msg:'Visita realizada hoje às 9h (Av. Alexandre Luiz 189). Pediu enviar documentos para análise às 13h06.',time:'26/05 13:06'},
+    {tipo:'urg',cor:'Gilvan',titulo:'Pâm Alqam — Gilvan',msg:'Pesquisou CLI484+CLI391+Verdes Campos em 3 portais. Pediu mais detalhes. <b>20 dias sem retorno do Gilvan.</b>',time:'06/05 23:49'},
+    {tipo:'urg',cor:'Gilvan',titulo:'Cris Carvalho — Gilvan',msg:'Enviou link ZAP com casa específica (CLI54, Jardim Itú, 3qts, 159m²). <b>10 dias sem resposta.</b>',time:'16/05 23:42'},
+    {tipo:'warn',cor:'Diego',titulo:'Isa (Marisa) — Diego',msg:'Quer 3 quartos no mesmo condomínio. Diego prometeu ligar no pessoal. 7 dias sem retorno no inbox.',time:'19/05 16:19'},
+    {tipo:'warn',cor:'Flávia',titulo:'Vanessa Gamboa — Flávia',msg:'Encaminhada para Flávia em 17/05. 9 dias — verificar se houve atendimento.',time:'17/05 18:40'},
+    {tipo:'warn',cor:'Diego',titulo:'Fernando Krebs — Diego',msg:'Kataiane quer casa específica (enviou foto). Diego ainda não respondeu sobre o imóvel.',time:'26/05 13:52'},
+    {tipo:'ok',cor:'Betânia',titulo:'Rogerio Viera — Betânia',msg:'Visita realizada no BV em 23/05. Betânia presente. Acompanhamento ativo hoje.',time:'26/05 09:27'},
+    {tipo:'ok',cor:'Betânia',titulo:'João Pedro Portinho — Betânia',msg:'Entrada finalizada em 16/05. Venda confirmada! Iniciar pós-venda.',time:'16/05'},
+  ];
+  const filtered = fC === 'todos' ? alertas : alertas.filter(a => a.cor === fC);
+  const show = filtered.length ? filtered : alertas;
+  document.getElementById('alertas-list').innerHTML = show.map(a=>`
+    <div class="alert-item ${a.tipo}">
+      <div class="alert-dot ${a.tipo}"></div>
+      <div>
+        <div class="alert-text"><b>${a.titulo}</b></div>
+        <div class="alert-text">${a.msg}</div>
+        <div class="alert-time">${a.time}</div>
+      </div>
+    </div>`).join('');
+},
     {tipo:'urg',titulo:'Pâm Alqam — Gilvan',msg:'Lead quente pesquisando em múltiplos portais (Viva Real + ZAP). 19 dias sem follow-up.',time:'Último: 06/05'},
     {tipo:'urg',titulo:'Marisa (Isa) — Diego',msg:'Quer 3 quartos, Diego foi ligar no pessoal. 6 dias sem retorno no inbox.',time:'Último: 19/05'},
     {tipo:'warn',titulo:'Vanessa Gamboa — Flávia',msg:'Encaminhada para Flávia em 17/05. 8 dias sem follow-up registrado.',time:'Último: 17/05'},
