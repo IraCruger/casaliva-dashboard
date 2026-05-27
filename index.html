@@ -699,13 +699,13 @@ function getMesesFiltrados() {
 }
 
 function somarMeses(meses, campo) {
+  // campo = 'camp' ou 'org' — retorna o total numérico
   return meses.reduce((acc, m) => {
     const d = MESES_MAP[m];
     if (!d) return acc;
-    const src = campo === 'camp' ? d.camp : campo === 'org' ? d.org : d;
-    Object.keys(src).forEach(k => { acc[k] = (acc[k] || 0) + src[k]; });
+    acc.total = (acc.total || 0) + (campo === 'camp' ? (d.camp || 0) : (d.org || 0));
     return acc;
-  }, {});
+  }, {total:0, qualif:0, frios:0, desq:0, risco:0, agend:0, vendas:0});
 }
 
 function getKPIsAtivos() {
@@ -714,27 +714,55 @@ function getKPIsAtivos() {
   const fT = document.getElementById('f-tipo').value;
   const fS = document.getElementById('f-status').value;
 
-  // Fator de escala por corretor
-  const corretorShare = {
-    'todos':1,'Betânia':.099,'Diego':.095,'Gonzalo':.129,
-    'Flávia':.019,'Leonardo':.011,'Camila':.007,'Gilvan':.003,
-    'César':.002,'Micheli':.001,'Tiago Losch':.001
-  };
-  const tipoShare = {'todos':1,'Apartamento':.39,'Casa':.61};
-  const statusShare = {'todos':1,'quente':.28,'morno':.31,'frio':.26,'venda':.003,'desqualificado':.15};
-  const fatorC = corretorShare[fC] || 1;
-  const fatorT = tipoShare[fT] || 1;
-  const fatorS = statusShare[fS] || 1;
-  const fator = fC === 'todos' && fT === 'todos' && fS === 'todos' ? 1 : fatorC * fatorT * fatorS;
+  // Calcular total real por corretor nos meses filtrados
+  var totalGeral = 0;
+  var totalCorretor = 0;
+  meses.forEach(function(m) {
+    var d = MESES_MAP[m];
+    if (!d) return;
+    totalGeral += (d.total || 0);
+    if (fC === 'todos') {
+      totalCorretor += (d.total || 0);
+    } else {
+      totalCorretor += ((d.cor && d.cor[fC]) || 0);
+    }
+  });
 
-  const camp = somarMeses(meses, 'camp');
-  const org = somarMeses(meses, 'org');
-  const aplicar = obj => {
-    const r = {};
-    Object.keys(obj).forEach(k => { r[k] = Math.round(obj[k] * fator); });
-    return r;
+  // Fatores proporcionais
+  var tipoShare = {'todos':1,'Apartamento':0.39,'Casa':0.61};
+  var statusShare = {'todos':1,'quente':0.28,'morno':0.31,'frio':0.26,'venda':0.003,'desqualificado':0.15};
+  var fatorT = tipoShare[fT] || 1;
+  var fatorS = statusShare[fS] || 1;
+  var fatorExtra = (fT === 'todos' && fS === 'todos') ? 1 : fatorT * fatorS;
+
+  // Total base: real da planilha
+  var base = Math.round(totalCorretor * fatorExtra);
+
+  // Distribuição camp vs org (proporção do período)
+  var campTotal = 0;
+  var orgTotal = 0;
+  meses.forEach(function(m) {
+    var d = MESES_MAP[m];
+    if (!d) return;
+    var fatorCor = (totalGeral > 0 && fC !== 'todos') ? (((d.cor && d.cor[fC]) || 0) / (d.total || 1)) : 1;
+    campTotal += Math.round((d.camp || 0) * fatorCor * fatorExtra);
+    orgTotal  += Math.round((d.org  || 0) * fatorCor * fatorExtra);
+  });
+
+  // KPIs proporcionais ao total real
+  var mkKPI = function(total) {
+    return {
+      total:  total,
+      qualif: Math.round(total * 0.38),
+      frios:  Math.round(total * 0.26),
+      desq:   Math.round(total * 0.10),
+      risco:  Math.round(total * 0.22),
+      agend:  Math.round(total * 0.12),
+      vendas: Math.round(total * 0.015),
+    };
   };
-  return { camp: aplicar(camp), org: aplicar(org) };
+
+  return { camp: mkKPI(campTotal), org: mkKPI(orgTotal) };
 }
 
 function makeKPI(val, label, tag, tagColor, iconBg, delta, accentColor) {
