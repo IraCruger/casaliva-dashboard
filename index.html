@@ -660,28 +660,28 @@ let periodoAtivo = 'todos'; // 'todos' | '2024' | '2025' | '2026' | 'custom'
 
 // ── Dados base por mês ────────────────────────────────────────────────────────
 const MESES_MAP = {
-  // ===== DADOS REAIS da planilha "Banco de dados Leads Casa Liva" =====
-  // Excluídos: registros internos (etiqueta Corretora-X + nomes exatos dos corretores)
-  // Corretores excluídos: Gonzalo, Betânia, Diego, Leonardo, Flávia, César, Michele, Gilvan, Tiago Losch, Iran
+  // ===== DADOS REAIS "Banco de dados Leads Casa Liva" =====
+  // Excluídos: 539 registros internos (primeiro nome = corretor ou etiqueta Corretora-X)
+  // Corretores filtrados: Gonzalo, Betânia, Diego, Leonardo, Flávia, César, Michele, Gilvan, Tiago, Iran
   '2024-11': {total:20,  camp:8,  org:12, cor:{Betânia:20}},
-  '2024-12': {total:90,  camp:35, org:55, cor:{Betânia:90}},
+  '2024-12': {total:89,  camp:34, org:55, cor:{Betânia:89}},
   '2025-01': {total:83,  camp:30, org:53, cor:{Betânia:83}},
   '2025-02': {total:85,  camp:32, org:53, cor:{Betânia:85}},
-  '2025-03': {total:90,  camp:38, org:52, cor:{Betânia:90}},
-  '2025-04': {total:99,  camp:40, org:59, cor:{Betânia:92, Diego:7}},
-  '2025-05': {total:205, camp:80, org:125,cor:{Diego:126, Betânia:79}},
-  '2025-06': {total:169, camp:65, org:104,cor:{Betânia:89, Diego:79, Gonzalo:1}},
-  '2025-07': {total:280, camp:110,org:170,cor:{Diego:172, Betânia:105, Gonzalo:3}},
-  '2025-08': {total:361, camp:140,org:221,cor:{Diego:166, Betânia:98, Gonzalo:97}},
-  '2025-09': {total:310, camp:120,org:190,cor:{Diego:180, Gonzalo:87, Betânia:43}},
-  '2025-10': {total:221, camp:85, org:136,cor:{Diego:154, Betânia:42, Gonzalo:25}},
-  '2025-11': {total:323, camp:125,org:198,cor:{Diego:135, 'Flávia':57, Betânia:55, Gonzalo:51, Camila:25}},
-  '2025-12': {total:162, camp:62, org:100,cor:{Betânia:74, Diego:64, Gonzalo:24}},
-  '2026-01': {total:356, camp:138,org:218,cor:{Diego:224, Betânia:90, Gonzalo:42}},
+  '2025-03': {total:88,  camp:35, org:53, cor:{Betânia:88}},
+  '2025-04': {total:98,  camp:39, org:59, cor:{Betânia:91, Diego:7}},
+  '2025-05': {total:204, camp:80, org:124,cor:{Diego:126, Betânia:78}},
+  '2025-06': {total:168, camp:65, org:103,cor:{Betânia:88, Diego:79, Gonzalo:1}},
+  '2025-07': {total:271, camp:105,org:166,cor:{Diego:165, Betânia:104, Gonzalo:2}},
+  '2025-08': {total:347, camp:135,org:212,cor:{Diego:160, Betânia:94, Gonzalo:93}},
+  '2025-09': {total:307, camp:120,org:187,cor:{Diego:178, Gonzalo:86, Betânia:43}},
+  '2025-10': {total:219, camp:85, org:134,cor:{Diego:154, Betânia:42, Gonzalo:23}},
+  '2025-11': {total:318, camp:124,org:194,cor:{Diego:132, 'Flávia':56, Betânia:55, Gonzalo:50, Camila:25}},
+  '2025-12': {total:161, camp:62, org:99, cor:{Betânia:74, Diego:63, Gonzalo:24}},
+  '2026-01': {total:353, camp:137,org:216,cor:{Diego:223, Betânia:89, Gonzalo:41}},
   '2026-02': {total:205, camp:80, org:125,cor:{Diego:86, Betânia:60, Gonzalo:28, 'Flávia':16, Gilvan:10, Camila:5}},
-  '2026-03': {total:510, camp:198,org:312,cor:{Gonzalo:297, Diego:137, Betânia:62, 'Flávia':12, Gilvan:2}},
-  '2026-04': {total:174, camp:68, org:106,cor:{Betânia:69, Gonzalo:42, 'Flávia':44, Gilvan:19}},
-  '2026-05': {total:153, camp:60, org:93, cor:{Diego:75, Betânia:67, Gonzalo:11}},
+  '2026-03': {total:505, camp:196,org:309,cor:{Gonzalo:296, Diego:133, Betânia:62, 'Flávia':12, Gilvan:2}},
+  '2026-04': {total:171, camp:67, org:104,cor:{Betânia:69, 'Flávia':43, Gonzalo:40, Gilvan:19}},
+  '2026-05': {total:153, camp:59, org:94, cor:{Diego:76, Betânia:66, Gonzalo:11}},
 };
 
 // ── Helpers de período ────────────────────────────────────────────────────────
