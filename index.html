@@ -750,7 +750,7 @@ function getKPIsAtivos() {
 }
 
 function makeKPI(val, label, tag, tagColor, iconBg, delta, accentColor) {
-  return `<div class="kpi-card"> <div class="top-line"> <span class="kpi-tag" style="background:${tagColor}20;color:${tagColor}">${tag}</span> <span class="kpi-icon" style="background:${iconBg}"></span> </div> <div class="kpi-val" style="color:${accentColor}">${typeof val==='number'?val.toLocaleString('pt-BR'):val}</div> <div class="kpi-label">${label}</div> ${delta?`<div class="kpi-delta">${delta}</div>`:''} <div class="kpi-accent-line" style="background:${accentColor}"></div> </div>`;
+  return `<div class="kpi-card"> <div class="top-line"> <span class="kpi-tag" style="background:${tagColor}20;color:${tagColor}">${tag}</span> <span class="kpi-icon" style="background:${iconBg}"></span> </div> <div class="kpi-val" style="color:${accentColor}">${typeof val==='number'?val.toLocaleString('pt-BR'):val}</div> <div class="kpi-label">${label}</div> ${delta ? '<div class="kpi-delta">'+delta+'</div>' : ''} <div class="kpi-accent-line" style="background:${accentColor}"></div> </div>`;
 }
 
 function renderKPIs() {
@@ -949,7 +949,7 @@ function renderPadroes() {
     {label:'Sinais de não interesse',color:'#f59e0b',items:['Respondeu "só curiosidade"','Não retornou após envio de link','Pediu tempo, nunca voltou','Última msg foi do corretor']},
     {label:'Sinais de desqualificação',color:'#ef4444',items:['Foi engano / outra imobiliária','Declarou não ter interesse','Renda incompatível','Perfil fora da oferta','Buscava aluguel, não venda']},
   ];
-  document.getElementById('padroes-wrap').innerHTML = padroes.map(g=>` <div style="margin-bottom:14px"> <div style="font-size:12px;font-weight:600;color:${g.color};margin-bottom:8px;display:flex;align-items:center;gap:6px"> <span style="width:8px;height:8px;border-radius:50%;background:${g.color};display:inline-block"></span>${g.label} </div> <div style="display:flex;flex-wrap:wrap;gap:6px"> ${g.items.map(it=>`<span style="background:${g.color}18;color:${g.color};font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid ${g.color}30">${it}</span>`).join('')} </div> </div>`).join('');
+  document.getElementById('padroes-wrap').innerHTML = padroes.map(g=>` <div style="margin-bottom:14px"> <div style="font-size:12px;font-weight:600;color:${g.color};margin-bottom:8px;display:flex;align-items:center;gap:6px"> <span style="width:8px;height:8px;border-radius:50%;background:${g.color};display:inline-block"></span>${g.label} </div> <div style="display:flex;flex-wrap:wrap;gap:6px"> ${g.items.map(function(it){ return '<span style="background:'+g.color+'18;color:'+g.color+';font-size:11px;padding:3px 8px;border-radius:20px">'+it+'</span>'; }).join('')} </div> </div>`).join('');
 }
 
 function renderPerf() {
