@@ -481,6 +481,17 @@ h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif}
 </div>
 
 <script>
+// ===== ERRO HANDLER GLOBAL =====
+window.onerror = function(msg, src, line, col, err) {
+  document.title = 'ERRO: ' + msg + ' (linha ' + line + ')';
+  var div = document.getElementById('login-error');
+  if (div) {
+    div.style.display = 'block';
+    div.textContent = 'Erro JS: ' + msg + ' linha ' + line;
+  }
+  return false;
+};
+
 // ===== LOGIN STANDALONE — isolado do resto do JS =====
 var LOGINS = {
   'iran':     'casaliva2026',
