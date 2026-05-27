@@ -976,7 +976,8 @@ function renderPerf() {
   document.getElementById('perf-body').innerHTML = perf.map(p => {
     const scoreColor = p.score>=80?'#22c55e':p.score>=65?'#f59e0b':'#ef4444';
     const hl = fC!=='todos'&&p.nome===fC?'background:rgba(232,98,10,.05);':'';
-    return `<tr style="${hl}"> <td style="font-weight:600">${p.nome}</td> <td>${p.total.toLocaleString('pt-BR')}</td> <td><span class="badge badge-q">${p.quentes}</span></td> <td>${p.agend}</td> <td><span class="badge badge-v">${p.vendas}</span></td> <td><span class="badge badge-d">${p.desq}</span></td> <td>${p.risco>20?`<span class="badge badge-m">${p.risco}</span>`:p.risco}</td> <td><div class="score-bar"><div class="score-track"><div class="score-fill" style="width:${p.score}%;background:${scoreColor}"></div></div><span style="font-size:12px;color:${scoreColor};font-weight:600">${p.score}</span></div></td> </tr>`;
+    var riscoCell = p.risco>20 ? '<span class="badge badge-m">'+p.risco+'</span>' : p.risco;
+    return '<tr style="'+hl+'"><td style="font-weight:600">'+p.nome+'</td><td>'+p.total.toLocaleString('pt-BR')+'</td><td><span class="badge badge-q">'+p.quentes+'</span></td><td>'+p.agend+'</td><td><span class="badge badge-v">'+p.vendas+'</span></td><td><span class="badge badge-d">'+p.desq+'</span></td><td>'+riscoCell+'</td><td><div class="score-bar"><div class="score-track"><div class="score-fill" style="width:'+p.score+'%;background:'+scoreColor+'"></div></div><span style="font-size:12px;color:'+scoreColor+';font-weight:600">'+p.score+'</span></div></td></tr>';
   }).join('');
 }
 
