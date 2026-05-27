@@ -550,10 +550,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script>
-
-
-document.getElementById('login-password').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-
 function doLogout() {
   sessionStorage.removeItem('cl_user');
   document.getElementById('app').style.display = 'none';
@@ -1090,11 +1086,7 @@ function initDashboard() {
     {icon:'📈',bg:'rgba(34,197,94,.1)',msg:'<strong>Domingo e terça-feira</strong> são os dias com mais leads. Garantir atendimento ativo nesses dias aumenta conversão.'},
     {icon:'🕐',bg:'rgba(232,98,10,.08)',msg:'<strong>Período da tarde (12–17h) e noite (18–23h)</strong> concentram 74% dos leads. Corretores devem priorizar disponibilidade nestes horários.'},
   ];
-  document.getElementById('insights-grid').innerHTML = insights.map(i=>`
-    <div class="insight-card">
-      <div class="insight-icon" style="background:${i.bg}">${i.icon}</div>
-      <div class="insight-text">${i.msg}</div>
-    </div>`).join('');
+  document.getElementById('insights-grid').innerHTML = insights.map(i=>'<div class="insight-card"><div class="insight-icon" style="background:'+i.bg+'">'+i.icon+'</div><div class="insight-text">'+i.msg+'</div></div>').join('');
 }
 
 function renderTable() {
