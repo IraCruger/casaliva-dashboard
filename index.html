@@ -532,7 +532,10 @@ function fazerLogin() {
     var app = document.getElementById('app');
     if (ls) ls.style.display = 'none';
     if (app) app.style.display = 'block';
-    if (typeof initDashboard === 'function') initDashboard();
+    if (typeof initDashboard === 'function') {
+      try { initDashboard(); console.log("🟢 initDashboard OK"); }
+      catch(e) { console.error("🔴 initDashboard ERRO:", e); document.title = "ERRO: " + e.message; }
+    } else { console.error("🔴 initDashboard não encontrado!"); }
   } else {
     if (errEl) errEl.style.display = 'block';
   }
@@ -554,13 +557,18 @@ document.addEventListener('DOMContentLoaded', function() {
       var ls = document.getElementById('login-screen');
       var app = document.getElementById('app');
       if (ls) ls.style.display = 'none';
-      if (app) { app.style.display = 'block'; if (typeof initDashboard === 'function') initDashboard(); }
+      if (app) { app.style.display = 'block'; if (typeof initDashboard === 'function') {
+      try { initDashboard(); console.log("🟢 initDashboard OK"); }
+      catch(e) { console.error("🔴 initDashboard ERRO:", e); document.title = "ERRO: " + e.message; }
+    } else { console.error("🔴 initDashboard não encontrado!"); } }
     }
   } catch(e) {}
 });
 </script>
 
 <script>
+console.log("🟢 Script dashboard iniciando...");
+
 function doLogout() {
   sessionStorage.removeItem('cl_user');
   document.getElementById('app').style.display = 'none';
@@ -742,16 +750,7 @@ function getKPIsAtivos() {
 }
 
 function makeKPI(val, label, tag, tagColor, iconBg, delta, accentColor) {
-  return `<div class="kpi-card">
-    <div class="top-line">
-      <span class="kpi-tag" style="background:${tagColor}20;color:${tagColor}">${tag}</span>
-      <span class="kpi-icon" style="background:${iconBg}"></span>
-    </div>
-    <div class="kpi-val" style="color:${accentColor}">${typeof val==='number'?val.toLocaleString('pt-BR'):val}</div>
-    <div class="kpi-label">${label}</div>
-    ${delta?`<div class="kpi-delta">${delta}</div>`:''}
-    <div class="kpi-accent-line" style="background:${accentColor}"></div>
-  </div>`;
+  return `<div class="kpi-card"> <div class="top-line"> <span class="kpi-tag" style="background:${tagColor}20;color:${tagColor}">${tag}</span> <span class="kpi-icon" style="background:${iconBg}"></span> </div> <div class="kpi-val" style="color:${accentColor}">${typeof val==='number'?val.toLocaleString('pt-BR'):val}</div> <div class="kpi-label">${label}</div> ${delta?`<div class="kpi-delta">${delta}</div>`:''} <div class="kpi-accent-line" style="background:${accentColor}"></div> </div>`;
 }
 
 function renderKPIs() {
@@ -884,9 +883,7 @@ function makeDonut(id, legId, data, colors) {
     data:{labels,datasets:[{data:vals,backgroundColor:cls,borderColor:'#111318',borderWidth:2,hoverOffset:4}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false}}}
   });
-  document.getElementById(legId).innerHTML = labels.map((l,i)=>`
-    <span class="legend-item"><span class="legend-dot" style="background:${cls[i]}"></span>${l} <b style="color:var(--text);margin-left:2px">${Math.round(vals[i]/total*100)}%</b></span>
-  `).join('');
+  document.getElementById(legId).innerHTML = labels.map((l,i)=>` <span class="legend-item"><span class="legend-dot" style="background:${cls[i]}"></span>${l} <b style="color:var(--text);margin-left:2px">${Math.round(vals[i]/total*100)}%</b></span> `).join('');
 }
 
 function renderHeatmap() {
@@ -917,15 +914,7 @@ function renderAlertas() {
     {tipo:'warn',titulo:'Vania Garcia — Gilvan',msg:'Pediu info CLI484 em 30/04. 25 dias sem retorno.',time:'Último: 30/04'},
     {tipo:'ok',titulo:'João Pedro Portinho — Betânia',msg:'Entrada finalizada em 16/05. Venda confirmada! Iniciar pós-venda.',time:'25/05 12:29'},
   ];
-  document.getElementById('alertas-list').innerHTML = alertas.map(a=>`
-    <div class="alert-item ${a.tipo}">
-      <div class="alert-dot ${a.tipo}"></div>
-      <div>
-        <div class="alert-text"><b>${a.titulo}</b></div>
-        <div class="alert-text">${a.msg}</div>
-        <div class="alert-time">${a.time}</div>
-      </div>
-    </div>`).join('');
+  document.getElementById('alertas-list').innerHTML = alertas.map(a=>` <div class="alert-item ${a.tipo}"> <div class="alert-dot ${a.tipo}"></div> <div> <div class="alert-text"><b>${a.titulo}</b></div> <div class="alert-text">${a.msg}</div> <div class="alert-time">${a.time}</div> </div> </div>`).join('');
 }
 
 function renderRankingImoveis() {
@@ -946,30 +935,12 @@ function renderRankingImoveis() {
     return;
   }
   const max = imoveis[0].n;
-  document.getElementById('rank-imoveis-list').innerHTML = imoveis.map((im,i)=>`
-    <div class="rank-item">
-      <span class="rank-num">${i+1}</span>
-      <div class="rank-info">
-        <div class="rank-name">${im.cod}</div>
-        <div class="rank-sub">${im.cor} · ${im.tipo}</div>
-      </div>
-      <div class="rank-bar-track" style="max-width:80px"><div class="rank-bar-fill" style="width:${Math.round(im.n/max*100)}%"></div></div>
-      <span class="rank-val">${im.n}</span>
-    </div>`).join('');
+  document.getElementById('rank-imoveis-list').innerHTML = imoveis.map((im,i)=>` <div class="rank-item"> <span class="rank-num">${i+1}</span> <div class="rank-info"> <div class="rank-name">${im.cod}</div> <div class="rank-sub">${im.cor} · ${im.tipo}</div> </div> <div class="rank-bar-track" style="max-width:80px"><div class="rank-bar-fill" style="width:${Math.round(im.n/max*100)}%"></div></div> <span class="rank-val">${im.n}</span> </div>`).join('');
 }
 
 function renderFunil() {
   const max = DATA.funil[0].val;
-  document.getElementById('funil-wrap').innerHTML = DATA.funil.map(f=>`
-    <div class="funnel-step">
-      <div class="funnel-label">${f.label}</div>
-      <div class="funnel-bar-wrap">
-        <div class="funnel-bar" style="width:${Math.round(f.val/max*100)}%;background:${f.color}">
-          ${f.val.toLocaleString('pt-BR')}
-        </div>
-      </div>
-      <div class="funnel-pct">${f===DATA.funil[0]?'100%':Math.round(f.val/max*100)+'%'}</div>
-    </div>`).join('');
+  document.getElementById('funil-wrap').innerHTML = DATA.funil.map(f=>` <div class="funnel-step"> <div class="funnel-label">${f.label}</div> <div class="funnel-bar-wrap"> <div class="funnel-bar" style="width:${Math.round(f.val/max*100)}%;background:${f.color}"> ${f.val.toLocaleString('pt-BR')} </div> </div> <div class="funnel-pct">${f===DATA.funil[0]?'100%':Math.round(f.val/max*100)+'%'}</div> </div>`).join('');
 }
 
 function renderPadroes() {
@@ -978,15 +949,7 @@ function renderPadroes() {
     {label:'Sinais de não interesse',color:'#f59e0b',items:['Respondeu "só curiosidade"','Não retornou após envio de link','Pediu tempo, nunca voltou','Última msg foi do corretor']},
     {label:'Sinais de desqualificação',color:'#ef4444',items:['Foi engano / outra imobiliária','Declarou não ter interesse','Renda incompatível','Perfil fora da oferta','Buscava aluguel, não venda']},
   ];
-  document.getElementById('padroes-wrap').innerHTML = padroes.map(g=>`
-    <div style="margin-bottom:14px">
-      <div style="font-size:12px;font-weight:600;color:${g.color};margin-bottom:8px;display:flex;align-items:center;gap:6px">
-        <span style="width:8px;height:8px;border-radius:50%;background:${g.color};display:inline-block"></span>${g.label}
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px">
-        ${g.items.map(it=>`<span style="background:${g.color}18;color:${g.color};font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid ${g.color}30">${it}</span>`).join('')}
-      </div>
-    </div>`).join('');
+  document.getElementById('padroes-wrap').innerHTML = padroes.map(g=>` <div style="margin-bottom:14px"> <div style="font-size:12px;font-weight:600;color:${g.color};margin-bottom:8px;display:flex;align-items:center;gap:6px"> <span style="width:8px;height:8px;border-radius:50%;background:${g.color};display:inline-block"></span>${g.label} </div> <div style="display:flex;flex-wrap:wrap;gap:6px"> ${g.items.map(it=>`<span style="background:${g.color}18;color:${g.color};font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid ${g.color}30">${it}</span>`).join('')} </div> </div>`).join('');
 }
 
 function renderPerf() {
@@ -1013,16 +976,7 @@ function renderPerf() {
   document.getElementById('perf-body').innerHTML = perf.map(p => {
     const scoreColor = p.score>=80?'#22c55e':p.score>=65?'#f59e0b':'#ef4444';
     const hl = fC!=='todos'&&p.nome===fC?'background:rgba(232,98,10,.05);':'';
-    return `<tr style="${hl}">
-      <td style="font-weight:600">${p.nome}</td>
-      <td>${p.total.toLocaleString('pt-BR')}</td>
-      <td><span class="badge badge-q">${p.quentes}</span></td>
-      <td>${p.agend}</td>
-      <td><span class="badge badge-v">${p.vendas}</span></td>
-      <td><span class="badge badge-d">${p.desq}</span></td>
-      <td>${p.risco>20?`<span class="badge badge-m">${p.risco}</span>`:p.risco}</td>
-      <td><div class="score-bar"><div class="score-track"><div class="score-fill" style="width:${p.score}%;background:${scoreColor}"></div></div><span style="font-size:12px;color:${scoreColor};font-weight:600">${p.score}</span></div></td>
-    </tr>`;
+    return `<tr style="${hl}"> <td style="font-weight:600">${p.nome}</td> <td>${p.total.toLocaleString('pt-BR')}</td> <td><span class="badge badge-q">${p.quentes}</span></td> <td>${p.agend}</td> <td><span class="badge badge-v">${p.vendas}</span></td> <td><span class="badge badge-d">${p.desq}</span></td> <td>${p.risco>20?`<span class="badge badge-m">${p.risco}</span>`:p.risco}</td> <td><div class="score-bar"><div class="score-track"><div class="score-fill" style="width:${p.score}%;background:${scoreColor}"></div></div><span style="font-size:12px;color:${scoreColor};font-weight:600">${p.score}</span></div></td> </tr>`;
   }).join('');
 }
 
@@ -1135,23 +1089,7 @@ function renderTable() {
   };
 
   document.getElementById('tbl-body').innerHTML = leads.length
-    ? leads.map(l => `
-    <tr>
-      <td style="font-weight:500">${l.nome}</td>
-      <td style="color:#5a6175;font-size:12px">${l.data}</td>
-      <td style="font-size:12px;color:#8b92a5">${l.cod}</td>
-      <td>${l.corretor}</td>
-      <td>${tempBadge(l.temp)}</td>
-      <td style="font-size:12px;color:#8b92a5">${l.proximo}</td>
-      <td style="font-size:12px;${paradoColor(l.parado)}">${l.parado}</td>
-      <td>${tempBadge(l.temp)}</td>
-      <td>
-        <div class="action-btns">
-          <button class="action-btn" onclick="copyTel('${l.tel}')" title="Copiar telefone">📋</button>
-          <button class="action-btn" onclick="openWA('${l.tel}')" title="Abrir WhatsApp">📱</button>
-        </div>
-      </td>
-    </tr>`).join('')
+    ? leads.map(l => ` <tr> <td style="font-weight:500">${l.nome}</td> <td style="color:#5a6175;font-size:12px">${l.data}</td> <td style="font-size:12px;color:#8b92a5">${l.cod}</td> <td>${l.corretor}</td> <td>${tempBadge(l.temp)}</td> <td style="font-size:12px;color:#8b92a5">${l.proximo}</td> <td style="font-size:12px;${paradoColor(l.parado)}">${l.parado}</td> <td>${tempBadge(l.temp)}</td> <td> <div class="action-btns"> <button class="action-btn" onclick="copyTel('${l.tel}')" title="Copiar telefone">📋</button> <button class="action-btn" onclick="openWA('${l.tel}')" title="Abrir WhatsApp">📱</button> </div> </td> </tr>`).join('')
     : `<tr><td colspan="9" style="text-align:center;color:#5a6175;padding:24px;font-size:13px">Nenhum lead encontrado para os filtros selecionados</td></tr>`;
 
   document.getElementById('tbl-count').textContent = `Exibindo ${leads.length} de ${DATA.leads.length} leads`;
