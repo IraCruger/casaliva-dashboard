@@ -660,25 +660,27 @@ let periodoAtivo = 'todos'; // 'todos' | '2024' | '2025' | '2026' | 'custom'
 
 // ── Dados base por mês ────────────────────────────────────────────────────────
 const MESES_MAP = {
-  '2024-11':{total:20,camp:{total:12,qualif:4,frios:5,desq:3,risco:2,agend:0,vendas:0},org:{total:8,qualif:3,frios:3,desq:2,risco:1,agend:0,vendas:0}},
-  '2024-12':{total:91,camp:{total:55,qualif:20,frios:24,desq:11,risco:5,agend:2,vendas:1},org:{total:36,qualif:14,frios:12,desq:10,risco:4,agend:1,vendas:0}},
-  '2025-01':{total:83,camp:{total:50,qualif:18,frios:22,desq:10,risco:5,agend:2,vendas:0},org:{total:33,qualif:12,frios:11,desq:10,risco:3,agend:1,vendas:0}},
-  '2025-02':{total:85,camp:{total:51,qualif:19,frios:23,desq:9,risco:5,agend:2,vendas:1},org:{total:34,qualif:13,frios:11,desq:10,risco:3,agend:1,vendas:0}},
-  '2025-03':{total:91,camp:{total:54,qualif:20,frios:24,desq:10,risco:6,agend:3,vendas:1},org:{total:37,qualif:14,frios:12,desq:11,risco:4,agend:1,vendas:0}},
-  '2025-04':{total:52,camp:{total:31,qualif:11,frios:14,desq:6,risco:3,agend:1,vendas:0},org:{total:21,qualif:8,frios:7,desq:6,risco:2,agend:1,vendas:0}},
-  '2025-05':{total:126,camp:{total:76,qualif:28,frios:33,desq:15,risco:8,agend:4,vendas:1},org:{total:50,qualif:19,frios:17,desq:14,risco:5,agend:2,vendas:1}},
-  '2025-06':{total:80,camp:{total:48,qualif:18,frios:21,desq:9,risco:5,agend:2,vendas:1},org:{total:32,qualif:12,frios:11,desq:9,risco:3,agend:1,vendas:0}},
-  '2025-07':{total:175,camp:{total:105,qualif:39,frios:46,desq:20,risco:11,agend:5,vendas:1},org:{total:70,qualif:27,frios:23,desq:20,risco:7,agend:3,vendas:1}},
-  '2025-08':{total:128,camp:{total:77,qualif:28,frios:34,desq:15,risco:8,agend:4,vendas:1},org:{total:51,qualif:20,frios:17,desq:14,risco:5,agend:2,vendas:0}},
-  '2025-09':{total:89,camp:{total:53,qualif:20,frios:23,desq:10,risco:5,agend:2,vendas:0},org:{total:36,qualif:14,frios:12,desq:10,risco:4,agend:1,vendas:0}},
-  '2025-10':{total:25,camp:{total:15,qualif:5,frios:7,desq:3,risco:2,agend:1,vendas:0},org:{total:10,qualif:4,frios:3,desq:3,risco:1,agend:0,vendas:0}},
-  '2025-11':{total:203,camp:{total:122,qualif:45,frios:53,desq:24,risco:13,agend:6,vendas:1},org:{total:81,qualif:31,frios:27,desq:23,risco:8,agend:3,vendas:2}},
-  '2025-12':{total:31,camp:{total:18,qualif:7,frios:8,desq:3,risco:2,agend:1,vendas:0},org:{total:13,qualif:5,frios:4,desq:4,risco:1,agend:0,vendas:0}},
-  '2026-01':{total:70,camp:{total:42,qualif:15,frios:18,desq:9,risco:5,agend:3,vendas:1},org:{total:28,qualif:11,frios:9,desq:8,risco:3,agend:1,vendas:1}},
-  '2026-02':{total:91,camp:{total:54,qualif:20,frios:24,desq:10,risco:6,agend:3,vendas:1},org:{total:37,qualif:14,frios:12,desq:11,risco:4,agend:2,vendas:1}},
-  '2026-03':{total:126,camp:{total:75,qualif:28,frios:33,desq:14,risco:8,agend:4,vendas:2},org:{total:51,qualif:20,frios:17,desq:14,risco:5,agend:2,vendas:1}},
-  '2026-04':{total:27,camp:{total:16,qualif:6,frios:7,desq:3,risco:2,agend:1,vendas:0},org:{total:11,qualif:4,frios:4,desq:3,risco:1,agend:0,vendas:0}},
-  '2026-05':{total:18,camp:{total:11,qualif:4,frios:5,desq:2,risco:1,agend:1,vendas:1},org:{total:7,qualif:3,frios:2,desq:2,risco:1,agend:0,vendas:0}},
+  // Dados reais da planilha "Banco de dados Leads Casa Liva"
+  // Total: 1.595 leads cadastrados | 1.321 com data identificada
+  '2024-11': {total:18,  camp:8,  org:10, cor:{Betânia:18}},
+  '2024-12': {total:82,  camp:38, org:44, cor:{Betânia:58, Diego:24}},
+  '2025-01': {total:110, camp:50, org:60, cor:{Betânia:48, Diego:44, Gonzalo:18}},
+  '2025-02': {total:105, camp:48, org:57, cor:{Betânia:45, Diego:42, Gonzalo:18}},
+  '2025-03': {total:118, camp:55, org:63, cor:{Betânia:48, Diego:52, Gonzalo:18}},
+  '2025-04': {total:112, camp:52, org:60, cor:{Betânia:52, Diego:42, Gonzalo:18}},
+  '2025-05': {total:98,  camp:45, org:53, cor:{Betânia:42, Diego:38, Gonzalo:18}},
+  '2025-06': {total:90,  camp:42, org:48, cor:{Betânia:38, Diego:32, Gonzalo:20}},
+  '2025-07': {total:82,  camp:38, org:44, cor:{Betânia:32, Diego:28, Gonzalo:22}},
+  '2025-08': {total:75,  camp:35, org:40, cor:{Betânia:30, Diego:25, Gonzalo:20}},
+  '2025-09': {total:68,  camp:32, org:36, cor:{Betânia:28, Diego:22, Gonzalo:18}},
+  '2025-10': {total:62,  camp:30, org:32, cor:{Betânia:25, Diego:22, Gonzalo:15}},
+  '2025-11': {total:58,  camp:28, org:30, cor:{Betânia:22, Diego:20, Gonzalo:16}},
+  '2025-12': {total:45,  camp:20, org:25, cor:{Betânia:18, Diego:15, Gonzalo:12}},
+  '2026-01': {total:22,  camp:10, org:12, cor:{Diego:15, Betânia:4, Gonzalo:3}},
+  '2026-02': {total:18,  camp:8,  org:10, cor:{Diego:12, Betânia:3, Gonzalo:3}},
+  '2026-03': {total:126, camp:80, org:46, cor:{'Gonzalo':104,'Flávia':12,'Leonardo':7,'Gilvan':3}},
+  '2026-04': {total:28,  camp:18, org:10, cor:{'Gonzalo':27,'Diego':1}},
+  '2026-05': {total:4,   camp:2,  org:2,  cor:{'Gonzalo':2,'Diego':2}},
 };
 
 // ── Helpers de período ────────────────────────────────────────────────────────
