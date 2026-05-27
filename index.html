@@ -481,17 +481,6 @@ h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif}
 </div>
 
 <script>
-// ===== ERRO HANDLER GLOBAL =====
-window.onerror = function(msg, src, line, col, err) {
-  document.title = 'ERRO: ' + msg + ' (linha ' + line + ')';
-  var div = document.getElementById('login-error');
-  if (div) {
-    div.style.display = 'block';
-    div.textContent = 'Erro JS: ' + msg + ' linha ' + line;
-  }
-  return false;
-};
-
 // ===== LOGIN STANDALONE — isolado do resto do JS =====
 var LOGINS = {
   'iran':     'casaliva2026',
@@ -532,10 +521,7 @@ function fazerLogin() {
     var app = document.getElementById('app');
     if (ls) ls.style.display = 'none';
     if (app) app.style.display = 'block';
-    if (typeof initDashboard === 'function') {
-      try { initDashboard(); console.log("🟢 initDashboard OK"); }
-      catch(e) { console.error("🔴 initDashboard ERRO:", e); document.title = "ERRO: " + e.message; }
-    } else { console.error("🔴 initDashboard não encontrado!"); }
+    if (typeof initDashboard === 'function') initDashboard();
   } else {
     if (errEl) errEl.style.display = 'block';
   }
@@ -557,17 +543,13 @@ document.addEventListener('DOMContentLoaded', function() {
       var ls = document.getElementById('login-screen');
       var app = document.getElementById('app');
       if (ls) ls.style.display = 'none';
-      if (app) { app.style.display = 'block'; if (typeof initDashboard === 'function') {
-      try { initDashboard(); console.log("🟢 initDashboard OK"); }
-      catch(e) { console.error("🔴 initDashboard ERRO:", e); document.title = "ERRO: " + e.message; }
-    } else { console.error("🔴 initDashboard não encontrado!"); } }
+      if (app) { app.style.display = 'block'; if (typeof initDashboard === 'function') initDashboard(); }
     }
   } catch(e) {}
 });
 </script>
 
 <script>
-console.log("🟢 Script dashboard iniciando...");
 
 function doLogout() {
   sessionStorage.removeItem('cl_user');
