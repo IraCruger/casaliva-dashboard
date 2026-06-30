@@ -567,85 +567,7 @@ function refreshData() {
   }, 1200);
 }
 
-const DATA = {
-  totalLeads: 4391,
-  porMes: {
-    '2024-11':20,'2024-12':91,'2025-01':83,'2025-02':85,'2025-03':91,
-    '2025-04':52,'2025-05':126,'2025-06':80,'2025-07':175,'2025-08':128,
-    '2025-09':89,'2025-10':25,'2025-11':203,'2025-12':31,
-    '2026-01':70,'2026-02':91,'2026-03':126,'2026-04':27,'2026-05':18
-  },
-  corretores: {
-    'Gonzalo':567,'Betânia':436,'Diego':415,'Flávia':85,
-    'Leonardo':48,'Camila':30,'Gilvan':14,'César':8,'Micheli':6,'Tiago Losch':3
-  },
-  campanha: { total:837,qualif:312,frios:381,desq:144,risco:78,agend:24,vendas:6 },
-  organico: { total:421,qualif:187,frios:149,desq:85,risco:43,agend:18,vendas:9 },
-  genero: { Feminino:280,Masculino:1211,'Não identificado':104 },
-  origem: { 'Disparo/Campanha':637,'Orgânico':410,'Sem etiqueta':237,'Fluxo Bot':201,'Ap Garden':69,'Arte Bela Vista':41 },
-  tipo: { 'Casa/Condomínio':253,'Apartamento':171,'Casa':45,'Não identificado':1126 },
-  heatmap: [
-    [35,20,88,75],[28,22,92,105],[31,20,70,74],
-    [28,82,85,86],[24,21,73,73],[33,14,97,59],[20,23,108,109]
-  ],
-  imoveis: [
-    {cod:'Cód-0772',n:55,cor:'Betânia',tipo:'Apartamento'},
-    {cod:'Cód-0773',n:46,cor:'Betânia',tipo:'Apartamento'},
-    {cod:'Arte-Bela-Vista',n:41,cor:'Betânia',tipo:'Apartamento'},
-    {cod:'FLUXO-Cód-DNI144',n:34,cor:'Flávia',tipo:'Casa'},
-    {cod:'Cód-DNI377',n:32,cor:'Gonzalo',tipo:'Casa'},
-    {cod:'Fluxo-Cód-0430',n:31,cor:'Diego',tipo:'Casa'},
-    {cod:'Cód-CLI487',n:25,cor:'Gonzalo',tipo:'Casa'},
-    {cod:'FLUXO-Cód-DNI268',n:23,cor:'Flávia',tipo:'Casa'},
-    {cod:'FLUXO-Cód-DN201',n:19,cor:'Flávia',tipo:'Casa'},
-    {cod:'Cód-LNC700',n:18,cor:'Flávia',tipo:'Casa'},
-    {cod:'Cód-DNI393',n:17,cor:'Leonardo',tipo:'Casa'},
-    {cod:'Fluxo-Cód-0436',n:16,cor:'Diego',tipo:'Casa'},
-    {cod:'Fluxo-Cód-0418',n:14,cor:'Diego',tipo:'Casa'},
-    {cod:'CLI386',n:3,cor:'Gonzalo',tipo:'Casa'},
-    {cod:'CLI484',n:3,cor:'Gilvan',tipo:'Casa'}
-  ],
-  funil: [
-    {label:'Lead recebido',val:4391,color:'#e8620a'},
-    {label:'Lead respondeu',val:2860,color:'#f59e0b'},
-    {label:'Interesse identificado',val:1204,color:'#14b8a6'},
-    {label:'Follow-up realizado',val:876,color:'#3b82f6'},
-    {label:'Agendamento',val:42,color:'#a855f7'},
-    {label:'Negociação',val:28,color:'#22c55e'},
-    {label:'Venda fechada',val:15,color:'#10b981'}
-  ],
-  leads: [
-    {nome:'51983027519',data:'25/05/2026',cod:'Av. Alexandre Luiz',corretor:'Diego',status:'quente',proximo:'Enviar docs urgente',parado:'0d',temp:'quente',tel:'+5551183027519',desq:''},
-    {nome:'Marcelo Lessa',data:'23/05/2026',cod:'Casa Condado',corretor:'Betânia',status:'quente',proximo:'Aguardar resposta condomínio',parado:'0d',temp:'quente',tel:'+5551197851985',desq:''},
-    {nome:'Flavinha',data:'14/05/2025',cod:'Casa-Laureci',corretor:'Betânia',status:'quente',proximo:'Agendar visita',parado:'0d',temp:'quente',tel:'+5551191100320',desq:''},
-    {nome:'Pâm Alqam',data:'27/04/2026',cod:'CLI484+CLI391',corretor:'Gilvan',status:'quente',proximo:'Ligar urgente - 19d parado',parado:'19d',temp:'quente',tel:'+5551185173682',desq:''},
-    {nome:'Marisa (Isa)',data:'19/05/2026',cod:'Apto 3 quartos',corretor:'Diego',status:'quente',proximo:'Verificar contato externo',parado:'6d',temp:'quente',tel:'+5555196546692',desq:''},
-    {nome:'Frederico Werlang',data:'06/03/2026',cod:'CLI386 Eldorado Sul',corretor:'Gonzalo',status:'quente',proximo:'Finalizar negociação',parado:'0d',temp:'quente',tel:'+5551198410202',desq:''},
-    {nome:'João Pedro Portinho',data:'anterior',cod:'Casa Condado',corretor:'Betânia',status:'venda',proximo:'Pós-venda / indicação',parado:'0d',temp:'venda',tel:'+5551',desq:''},
-    {nome:'Vanessa Gamboa',data:'17/05/2026',cod:'Apto José Alencar',corretor:'Flávia',status:'quente',proximo:'Verificar com Flávia - 8d',parado:'8d',temp:'quente',tel:'+5551184919297',desq:''},
-    {nome:'Luciana Peretto',data:'23/05/2026',cod:'Green 3qts',corretor:'Betânia',status:'quente',proximo:'Confirmar visita',parado:'1d',temp:'quente',tel:'+5551184703304',desq:''},
-    {nome:'Fernando Krebs',data:'02/05/2025',cod:'Casa (foto)',corretor:'Diego',status:'quente',proximo:'Identificar imóvel da foto',parado:'0d',temp:'quente',tel:'+5551192522383',desq:''},
-    {nome:'Silvério',data:'28/03/2026',cod:'—',corretor:'Diego',status:'quente',proximo:'Diego vai ligar agora',parado:'0d',temp:'quente',tel:'+5551197562137',desq:''},
-    {nome:'Vania Garcia',data:'30/04/2026',cod:'CLI484',corretor:'Gilvan',status:'morno',proximo:'Reengajar com novidade',parado:'25d',temp:'morno',tel:'+5551193340733',desq:''},
-    {nome:'R Machado',data:'15/04/2026',cod:'—',corretor:'Gonzalo',status:'morno',proximo:'Manter relacionamento',parado:'4d',temp:'morno',tel:'+5551197770748',desq:''},
-    {nome:'Vilma Chalmes',data:'09/04/2026',cod:'—',corretor:'Gonzalo',status:'frio',proximo:'Última tentativa',parado:'23d',temp:'frio',tel:'+5551182636460',desq:''},
-    {nome:'Rafaela',data:'16/04/2026',cod:'—',corretor:'Gonzalo',status:'frio',proximo:'Última tentativa',parado:'39d',temp:'frio',tel:'+5551196771962',desq:''},
-    {nome:'Irene Cruz Borges',data:'25/05/2026',cod:'—',corretor:'Betânia',status:'desqualificado',proximo:'Encerrar',parado:'0d',temp:'desqualificado',tel:'+5551199611452',desq:'Foi engano - outra imobiliária'},
-    {nome:'Miriam Prediger',data:'25/04/2026',cod:'CLI549',corretor:'Betânia',status:'desqualificado',proximo:'Encerrar',parado:'1d',temp:'desqualificado',tel:'+5551191275028',desq:'Não tem interesse'},
-  ],
-  perf: [
-    {nome:'Betânia',total:436,quentes:8,agend:18,vendas:9,desq:42,risco:31,score:88},
-    {nome:'Diego',total:415,quentes:6,agend:12,vendas:4,desq:38,risco:28,score:82},
-    {nome:'Gonzalo',total:567,quentes:3,agend:8,vendas:2,desq:87,risco:95,score:71},
-    {nome:'Flávia',total:85,quentes:2,agend:4,vendas:0,desq:12,risco:18,score:65},
-    {nome:'Leonardo',total:48,quentes:1,agend:2,vendas:0,desq:8,risco:12,score:60},
-    {nome:'Gilvan',total:14,quentes:2,agend:0,vendas:0,desq:2,risco:6,score:55},
-    {nome:'Camila',total:30,quentes:0,agend:0,vendas:0,desq:5,risco:8,score:48},
-    {nome:'César',total:8,quentes:1,agend:0,vendas:0,desq:1,risco:3,score:52},
-    {nome:'Micheli',total:6,quentes:1,agend:0,vendas:0,desq:0,risco:1,score:58},
-    {nome:'Tiago Losch',total:3,quentes:0,agend:0,vendas:0,desq:0,risco:1,score:45},
-  ]
-};
+const DATA = {"totalLeads":555,"porMes":{"2026-06":555},"corretores":{"Betânia":263,"Casa Liva":125,"Diego":133,"Gonzalo":1,"Leonardo":8,"Flávia":18,"Gilvan":7},"campanha":{"total":300,"qualif":147,"frios":76,"desq":0,"risco":128,"agend":0,"vendas":0},"organico":{"total":255,"qualif":0,"frios":0,"desq":3,"risco":225,"agend":0,"vendas":0},"genero":{"Feminino":0,"Masculino":0,"Não identificado":555},"origem":{"Disparo/Campanha":300,"Orgânico":5,"Sem etiqueta":250},"tipo":{"Apartamento":0,"Casa":0,"Casa/Condomínio":0,"Não identificado":555},"heatmap":[[11,3,34,26],[13,8,23,39],[13,9,26,28],[12,6,25,31],[15,9,24,41],[16,10,18,33],[15,12,32,23]],"imoveis":[{"cod":"Cód-560","cor":"Betânia","n":106,"tipo":"Não identificado"},{"cod":"Cód-578","cor":"Diego","n":49,"tipo":"Não identificado"},{"cod":"Cód-574","cor":"Casa Liva","n":28,"tipo":"Não identificado"},{"cod":"Cód-285","cor":"Casa Liva","n":28,"tipo":"Não identificado"},{"cod":"Cód-568","cor":"Betânia","n":26,"tipo":"Não identificado"},{"cod":"Cód-458","cor":"—","n":18,"tipo":"Não identificado"},{"cod":"Cód-575","cor":"—","n":14,"tipo":"Não identificado"},{"cod":"Cód-433","cor":"—","n":10,"tipo":"Não identificado"},{"cod":"Cód-530","cor":"—","n":8,"tipo":"Não identificado"},{"cod":"Cód-493","cor":"—","n":7,"tipo":"Não identificado"},{"cod":"Cód-554","cor":"—","n":7,"tipo":"Não identificado"}],"funil":[{"label":"Lead recebido","val":555,"color":"#e8620a"},{"label":"Lead respondeu","val":147,"color":"#f07d2e"},{"label":"Interesse identificado","val":147,"color":"#f59542"},{"label":"Follow-up","val":77,"color":"#fbb267"},{"label":"Agendamento","val":0,"color":"#fdc998"},{"label":"Negociação","val":0,"color":"#7c9c3a"},{"label":"Venda","val":0,"color":"#4a7c2a"}],"leads":[],"perf":[{"nome":"Betânia","total":263,"quentes":0,"agend":0,"vendas":0,"desq":0,"risco":0,"score":0},{"nome":"Diego","total":133,"quentes":0,"agend":0,"vendas":0,"desq":0,"risco":0,"score":0},{"nome":"Casa Liva","total":125,"quentes":0,"agend":0,"vendas":0,"desq":0,"risco":0,"score":0},{"nome":"Flávia","total":18,"quentes":0,"agend":0,"vendas":0,"desq":0,"risco":0,"score":0},{"nome":"Leonardo","total":8,"quentes":0,"agend":0,"vendas":0,"desq":0,"risco":0,"score":0},{"nome":"Gilvan","total":7,"quentes":0,"agend":0,"vendas":0,"desq":0,"risco":0,"score":0},{"nome":"Gonzalo","total":1,"quentes":0,"agend":0,"vendas":0,"desq":0,"risco":0,"score":0}]};
 
 let charts = {};
 let qfStatus = 'todos';
@@ -1145,4 +1067,4 @@ if (sessionStorage.getItem('cl_user')) {
 
 </script>
 </body>
-</html>
+  </html>
