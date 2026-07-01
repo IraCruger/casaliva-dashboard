@@ -733,11 +733,9 @@ function renderChartCorretor() {
   const fator = (tipoShare[fT]||1) * (statusShare[fS]||1);
 
   const totalMeses = meses.reduce((a, m) => a + (MESES_MAP[m]?.total || 0), 0);
-  const baseCorretores = {
-    'Betânia':.099,'Diego':.095,'Gonzalo':.129,'Flávia':.019,
-    'Leonardo':.011,'Camila':.007,'Gilvan':.003,'César':.002,'Micheli':.001,'Tiago Losch':.001
-  };
-  let entries = Object.entries(baseCorretores).map(([k,share]) => [k, Math.round(totalMeses * share * fator)]);
+  const corAgg = {};
+  meses.forEach(function(m){ var d = MESES_MAP[m]; if (d && d.cor) { for (var k in d.cor) corAgg[k] = (corAgg[k]||0) + (d.cor[k]||0); } });
+  let entries = Object.entries(corAgg).map(([k,v]) => [k, Math.round(v * fator)]);
   if (fC !== 'todos') entries = entries.filter(([k]) => k === fC);
   entries.sort((a,b) => b[1]-a[1]);
 
@@ -939,7 +937,20 @@ function clearFilters() {
   applyFilters();
 }
 
+function populateCorretores() {
+  var set = {};
+  Object.keys(MESES_MAP).forEach(function(m){ var d = MESES_MAP[m]; if (d && d.cor) Object.keys(d.cor).forEach(function(k){ set[k] = (set[k]||0) + (d.cor[k]||0); }); });
+  if (typeof DATA !== 'undefined' && DATA.corretores) Object.keys(DATA.corretores).forEach(function(k){ set[k] = (set[k]||0) + (DATA.corretores[k]||0); });
+  var nomes = Object.keys(set).sort(function(a,b){ return set[b]-set[a]; });
+  var sel = document.getElementById('f-corretor');
+  if (!sel) return;
+  var cur = sel.value;
+  sel.innerHTML = '<option value="todos">Todos</option>' + nomes.map(function(n){ return '<option value="'+n+'">'+n+'</option>'; }).join('');
+  if ([].slice.call(sel.options).some(function(o){ return o.value === cur; })) sel.value = cur;
+}
+
 function initDashboard() {
+  populateCorretores();
   renderKPIs();
   renderChartDiario();
   renderChartCorretor();
